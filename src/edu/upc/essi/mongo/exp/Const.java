@@ -16,4 +16,6 @@ public final class Const {
 
 	// log path
 	public static final String LOG_LOC = "/root/log/mongodb.log";
+	
+	public static final String JSON_LOC = "root/data/json/";
 }
