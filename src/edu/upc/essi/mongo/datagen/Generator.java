@@ -19,7 +19,7 @@ public class Generator {
 
 	// private constructor restricted to this class itself
 	private Generator() {
-		list64m = CSVUtils.fillIds("data/80-64m");
+		list64m = CSVUtils.fillIds("data/80-2m");
 		System.out.println("Ids loaded");
 	}
 
@@ -27,19 +27,26 @@ public class Generator {
 	public static Generator getInstance() {
 		if (generator_instance == null)
 			generator_instance = new Generator();
-
 		return generator_instance;
 	}
 
-	public JSONArray generate(int count, int attribSize) {
+	/**
+	 *
+	 * @param count How many documents to generate
+	 * @param attribSize Size of the string values in attributes
+	 * @param nulls Fraction of nulls
+	 * @return
+	 */
+	public JSONArray generate(int count, int attribSize, double nulls) {
 		JSONArray list = new JSONArray();
 		List ids = list64m.subList(0, count);
 		Collections.shuffle(ids);
 		for (int i = 0; i < count; i++) {
-
 			JSONObject obj = new JSONObject();
 			obj.put("_id", ids.get(i));
-			obj.put("attrib1", RandomStringUtils.randomAlphanumeric(attribSize));
+
+
+			obj.put("attrib1", Math.random()<nulls ? "null" : RandomStringUtils.randomAlphanumeric(attribSize));
 			list.add(obj);
 		}
 		return list;
