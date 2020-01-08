@@ -6,7 +6,7 @@ public class GeneratorTest {
 
     public static void main(String args[]) {
         Generator gen = Generator.getInstance();
-        JSONArray out = gen.generate(10,3,.5f);
+        JSONArray out = gen.generate(true,10, 3, 3, .5f, .2f);
         out.forEach(System.out::println);
     }
 }
