@@ -37,13 +37,18 @@ public class Generator {
 	 * @param attribCount How many attributes to consider
 	 * @param attribSize Size of the string values in attributes
 	 * @param nullProbability Fraction of nulls
-	 * @param arrayProbability if true with a 50% probability an attribute will be an array (using this same method)
+	 * @param arrayProbability if true with a 50% probability an attribute will be an array (using this same method). Elements of the array will also be documents generated with this method, where its attributes have an array probability of 0.
+	 * @param attributeIsAtomicProbability probability that an attribute is atomic (otherwise it is a document)
 	 * @return
 	 */
-	public JSONArray generate(boolean includeIDs, int documentCount, int attribCount, int attribSize, double nullProbability, double arrayProbability) {
+	public JSONArray generate(boolean includeIDs, int documentCount, int attribCount, int attribSize, double nullProbability, double arrayProbability, double attributeIsAtomicProbability) {
 		JSONArray list = new JSONArray();
 		List ids = includeIDs ? list64m.subList(0, documentCount) : Lists.newArrayList();
 		Collections.shuffle(ids);
+
+		List<Boolean> atomicAttributes = Lists.newArrayList();
+		for (int i = 0; i < attribCount; ++i) atomicAttributes.add(Math.random() < attributeIsAtomicProbability);
+
 		for (int i = 0; i < documentCount; i++) {
 			JSONObject obj = new JSONObject();
 			if (includeIDs) obj.put("_id", ids.get(i));
@@ -53,9 +58,13 @@ public class Generator {
 				if (Math.random() < nullProbability)
 					value = "null";
 				else if (Math.random() < arrayProbability)
-					value = getInstance().generate(false,10,2,3,.5f,0f);
-				else
+					//TODO do not hardcode
+					value = getInstance().generate(false,10,2,3,.5f,0f, 1f);
+				else if (atomicAttributes.get(j))
 					value = RandomStringUtils.randomAlphanumeric(attribSize);
+				else
+					value = getInstance().generate(false,1,2,3,.5f,0f, 1f);
+
 				obj.put("attrib"+j,value);
 			}
 			list.add(obj);
