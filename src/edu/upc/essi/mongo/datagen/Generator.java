@@ -63,7 +63,7 @@ public class Generator {
 				else if (atomicAttributes.get(j))
 					value = RandomStringUtils.randomAlphanumeric(attribSize);
 				else
-					value = getInstance().generate(false,1,2,3,.5f,0f, 1f);
+					value = getInstance().generate(false,1,2,3,0f,0f, 1f).get(0);
 
 				obj.put("attrib"+j,value);
 			}
