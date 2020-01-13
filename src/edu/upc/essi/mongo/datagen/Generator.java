@@ -1,28 +1,20 @@
 package edu.upc.essi.mongo.datagen;
 
 import java.io.StringReader;
-import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.SplittableRandom;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import edu.upc.essi.mongo.exp.CSVUtils;
-import org.omg.SendingContext.RunTime;
 
 import javax.json.*;
 
 public class Generator {
 
 	private static Generator generator_instance = null;
-
-	// variable of type String
 	private List list64m;
 	private int idIndex;
 
