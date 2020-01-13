@@ -1,0 +1,59 @@
+{
+  "_id": true,
+  "type": "object",
+  "properties": {
+    "currentLatitude": {
+      "type": "number",
+      "nullProbability": 0.5,
+      "minimum": -90,
+      "maximum": 90
+    },
+    "currentLongitude": {
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "name": {
+      "type": "string",
+      "domain": ["Seat","Ford","Renault","Toyota"]
+    },
+    "licensePlate" : {
+      "type": "string",
+      "size": 3
+    },
+    "owner": {
+      "type" : "object",
+      "properties" : {
+        "name": {
+          "type": "string",
+          "domain" : ["Alberto", "Moditha", "Sergi"]
+        },
+        "phoneNumber": {
+          "nullProbability": 0.75,
+          "type": "number",
+          "minimum": 934001020,
+          "maximum": 934001050
+        }
+      }
+    },
+    "hasBeenRepairedIn": {
+      "type": "array",
+      "minSize": 2,
+      "maxSize": 5,
+      "contents": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "size": 5
+          },
+          "country": {
+            "type": "string",
+            "nullProbability": 0.25,
+            "domain": ["Belgium","France","Italy"]
+          }
+        }
+      }
+    }
+  }
+}

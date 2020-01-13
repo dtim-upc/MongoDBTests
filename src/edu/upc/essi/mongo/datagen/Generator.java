@@ -1,14 +1,22 @@
 package edu.upc.essi.mongo.datagen;
 
+import java.io.StringReader;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.SplittableRandom;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import edu.upc.essi.mongo.exp.CSVUtils;
+import org.omg.SendingContext.RunTime;
+
+import javax.json.*;
 
 public class Generator {
 
@@ -16,12 +24,18 @@ public class Generator {
 
 	// variable of type String
 	private List list64m;
-	public String s;
+	private int idIndex;
 
 	// private constructor restricted to this class itself
 	private Generator() {
 		list64m = CSVUtils.fillIds("data/80-2m");
+		idIndex = 0;
 		System.out.println("Ids loaded");
+	}
+
+	private Object getNextID() throws RuntimeException {
+		if (idIndex == list64m.size()) throw new RuntimeException("Exceeded IDs limit");
+		return list64m.get(idIndex++);
 	}
 
 	// static method to create instance of Singleton class
@@ -31,45 +45,101 @@ public class Generator {
 		return generator_instance;
 	}
 
-	/**
-	 * @param includeIDs if true, documents will contain an "_id" attribute
-	 * @param documentCount How many documents to generate
-	 * @param attribCount How many attributes to consider
-	 * @param attribSize Size of the string values in attributes
-	 * @param nullProbability Fraction of nulls
-	 * @param arrayProbability if true with a 50% probability an attribute will be an array (using this same method). Elements of the array will also be documents generated with this method, where its attributes have an array probability of 0.
-	 * @param attributeIsAtomicProbability probability that an attribute is atomic (otherwise it is a document)
-	 * @return
-	 */
-	public JSONArray generate(boolean includeIDs, int documentCount, int attribCount, int attribSize, double nullProbability, double arrayProbability, double attributeIsAtomicProbability) {
-		JSONArray list = new JSONArray();
-		List ids = includeIDs ? list64m.subList(0, documentCount) : Lists.newArrayList();
-		Collections.shuffle(ids);
-
-		List<Boolean> atomicAttributes = Lists.newArrayList();
-		for (int i = 0; i < attribCount; ++i) atomicAttributes.add(Math.random() < attributeIsAtomicProbability);
-
-		for (int i = 0; i < documentCount; i++) {
-			JSONObject obj = new JSONObject();
-			if (includeIDs) obj.put("_id", ids.get(i));
-			for (int j = 0; j < attribCount; ++j) {
-				Object value;
-				//TODO this has to be improved, right now null dominates
-				if (Math.random() < nullProbability)
-					value = "null";
-				else if (Math.random() < arrayProbability)
-					//TODO do not hardcode
-					value = getInstance().generate(false,10,2,3,.5f,0f, 1f);
-				else if (atomicAttributes.get(j))
-					value = RandomStringUtils.randomAlphanumeric(attribSize);
-				else
-					value = getInstance().generate(false,1,2,3,0f,0f, 1f).get(0);
-
-				obj.put("attrib"+j,value);
-			}
-			list.add(obj);
+	public JsonArray generateFromPseudoJSONSchema(int documentCount, String schemaPath) throws RuntimeException,Exception {
+		JsonObject schema = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schemaPath).toUri()))).readObject();
+		if (!schema.getString("type").equals("object")) throw new RuntimeException("The type of the root must be object");
+		JsonArrayBuilder out = Json.createArrayBuilder();
+		for (int i = 0; i < documentCount; ++i) {
+			out.add(generateJSONObject(schema));
 		}
-		return list;
+		return out.build();
 	}
 
+	private JsonObject generateJSONObject(JsonObject schema) throws RuntimeException {
+		JsonObjectBuilder out = Json.createObjectBuilder();
+		if (schema.containsKey("_id") && schema.getBoolean("_id"))
+			out.add("_id", getNextID().toString());
+		schema.getJsonObject("properties").keySet().forEach(prop -> {
+			JsonObject property = schema.getJsonObject("properties").getJsonObject(prop);
+			if (property.containsKey("nullProbability") && Math.random() < property.getJsonNumber("nullProbability").doubleValue()) {
+				out.add(prop, JsonValue.NULL);
+			} else {
+				switch (property.getString("type")) {
+					case "number":
+						out.add(prop, generateNumber(property)); break;
+					case "string":
+						out.add(prop, generateString(property)); break;
+					case "object":
+						out.add(prop,generateJSONObject(property)); break;
+					case "array":
+						out.add(prop,generateJsonArray(property));
+				}
+			}
+		});
+		return out.build();
+	}
+
+	// from https://mkyong.com/java/java-generate-random-integers-in-a-range/
+	private JsonArray generateJsonArray(JsonObject property) {
+		JsonArrayBuilder arr = Json.createArrayBuilder();
+		int howMany = new SplittableRandom().nextInt((property.getJsonNumber("maxSize").intValue() -
+				property.getJsonNumber("minSize").intValue()) + 1) + property.getJsonNumber("minSize").intValue();
+		switch (property.getJsonObject("contents").getString("type")) {
+			case "number":
+				for (int i = 0; i < howMany; ++i) {
+					arr.add(generateNumber(property.getJsonObject("contents")));
+				}
+				break;
+			case "string":
+				for (int i = 0; i < howMany; ++i) {
+					arr.add(generateString(property.getJsonObject("contents")));
+				}
+				break;
+			case "object":
+				for (int i = 0; i < howMany; ++i) {
+					arr.add(generateJSONObject(property.getJsonObject("contents")));
+				}
+				break;
+			case "array":
+				for (int i = 0; i < howMany; ++i) {
+					arr.add(generateJsonArray(property.getJsonObject("contents")));
+				};
+		}
+		return arr.build();
+	}
+
+	private int generateNumber(JsonObject property) {
+		if (property.containsKey("minimum") && property.containsKey("maximum"))
+			return generateNumber(property.getInt("minimum"), property.getInt("maximum"));
+		else if (property.containsKey("minimum") && !property.containsKey("maximum"))
+			return generateNumber(property.getInt("minimum"), 1000);
+		else if (!property.containsKey("minimum") && property.containsKey("maximum"))
+			return generateNumber(0, property.getInt("maximum"));
+		else
+			return generateNumber(0, 1000);
+	}
+
+	//from https://stackoverflow.com/questions/11743267/get-random-numbers-in-a-specific-range-in-java
+	private int generateNumber(int lowerbound, int upperbound) {
+		return new SplittableRandom().nextInt(upperbound-lowerbound) + lowerbound;
+	}
+
+	private String generateString(JsonObject property) {
+		if (property.containsKey("domain") && property.containsKey("size"))
+			throw new RuntimeException("Cannot have both options domain and size");
+		if (!property.containsKey("domain") && !property.containsKey("size"))
+			throw new RuntimeException("At least must contain an option domain or size");
+		if (property.containsKey("domain"))
+			return generateStringFromDomain(property.getJsonArray("domain"));
+		return generateStringWithSize(property.getJsonNumber("size").intValue());
+	}
+
+	//from https://www.baeldung.com/java-random-list-element
+	private String generateStringFromDomain(JsonArray domain) {
+		return domain.getString(new SplittableRandom().nextInt(domain.size()));
+	}
+
+	private String generateStringWithSize(int size) {
+		return RandomStringUtils.randomAlphanumeric(size);
+	}
 }

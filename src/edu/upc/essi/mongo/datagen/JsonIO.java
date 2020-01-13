@@ -5,14 +5,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+//import org.json.simple.JSONArray;
+//import org.json.simple.parser.JSONParser;
+//import org.json.simple.parser.ParseException;
 
 import edu.upc.essi.mongo.exp.Const;
 
 public class JsonIO {
-
+/*
 	public static void writeFile(String filename, JSONArray jsons) {
 		try (FileWriter file = new FileWriter(Const.JSON_LOC + filename)) {
 
@@ -41,4 +41,5 @@ public class JsonIO {
 		}
 		return null;
 	}
+ */
 }
