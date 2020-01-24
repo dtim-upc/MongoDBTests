@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.io.File;
 
-import edu.upc.fib.benchmarkDB.util.reader.PlainFileReader;
-import edu.upc.fib.benchmarkDB.util.writer.PlainFileWriter;
+import edu.upc.essi.mongo.util.reader.PlainFileReader;
+import edu.upc.essi.mongo.util.writer.PlainFileWriter;
 
 public class MetricsManager {
 	
