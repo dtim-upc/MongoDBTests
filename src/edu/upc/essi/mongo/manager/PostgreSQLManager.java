@@ -10,10 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 import de.bytefish.pgbulkinsert.PgBulkInsert;
 import edu.upc.essi.mongo.util.EnumDatabase;
@@ -23,77 +20,30 @@ import edu.upc.essi.mongo.util.MetricsManager;
 import edu.upc.essi.mongo.util.Util;
 import edu.upc.essi.mongo.util.reader.PlainFileReader;
 import edu.upc.essi.mongo.util.writer.PlainFileWriter;
+import org.bson.Document;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLClassLoader;
 
 public class PostgreSQLManager {
-	private String base_url, full_url, server,port,database,user, password,driverClass,databaseSuffix,indexStamentFilePath;
-	String createDBPath ="";
-	boolean createDB = false;
-	
-	public PostgreSQLManager(String databaseSuffix,String indexStamentFilePath, boolean createDB, String createDBPath) {
-		this.databaseSuffix = databaseSuffix;
-		this.indexStamentFilePath = indexStamentFilePath; 
-		loadProperties();
-		this.createDB = createDB;
-		this.createDBPath = createDBPath;
+
+	private static PostgreSQLManager instance = null;
+	private static String table;
+
+	List<Document> documents;
+
+	public static PostgreSQLManager getInstance(String table) {
+		if (instance == null)
+			instance = new PostgreSQLManager(table);
+		return instance;
+	}
+
+	public PostgreSQLManager(String table) {
+		this.table = table;
 	} 
 	
-	public void insertBulk(String directoryPath,String destinationMetricsFile,EnumTestType testType) {
-		
-		if(createDB) {
-			createDatabase(createDBPath);
-		}
-		
-		
-		File dir=new File(directoryPath);
-		File[] directoryListing = dir.listFiles();
-		boolean createIndexAfterInsert=false;
-		switch (testType) {
-			case NOPK_COD_JSON:
-			case NOPK_NOCOD_JSON:
-			case NOPK_NOCOD_RNF:
-			case NOPK_COD_JSONB:
-			case NOPK_NOCOD_JSONB:
-				createIndexAfterInsert = true;
-				break;
-	
-			default:
-				break;
-		}
-		HashMap<String, String> statements = null;
-		if(createIndexAfterInsert) {
-			statements = getStatements(indexStamentFilePath);
-		}
-		
-		MetricsManager oMetric = new MetricsManager(destinationMetricsFile,EnumDatabase.POSTGRES,EnumOperation.INSERT,testType);
-		
-		if (directoryListing != null) {
-			 for (File child : directoryListing) { 
-				long numberRecords = 0; 
-				String fileName = child.getAbsolutePath();
-				String object = Util.getTableNameFromPath(child.getName());
-				oMetric.startRecord( object);
-				numberRecords = insertBulkFile(fileName,oMetric); 
-				if(createIndexAfterInsert) {
-					System.out.println("Creating index...\n" + statements.get(object));
-					executeNoQuery(statements.get(object));
-					System.out.println("Index created");
-				}
-				oMetric.endRecord(numberRecords); 
-				
-				double size = getSizeMB(object);
-				oMetric.setSize(size);
-				
-				oMetric.recordMetrics();
-				oMetric.flushToDisk();
-			 }
-		}
-		 
-	}
-	
+
 	private long insertBulkFile(String fileName,MetricsManager oMetric) {
 		long numberRecords = 0;
 		try { 
