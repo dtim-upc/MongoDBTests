@@ -3,6 +3,7 @@ package edu.upc.essi.mongo.ideas_experiments;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
 import edu.upc.essi.mongo.manager.MongoDBManager;
+import edu.upc.essi.mongo.manager.PostgreSQLManager;
 import org.bson.Document;
 
 /**
@@ -17,16 +18,11 @@ public class E1 {
             gen.generateFromPseudoJSONSchema(10,template).stream().map(d->Document.parse(d.toString())).
                     forEach(DocumentSet.getInstance().documents::add);
             MongoDBManager.getInstance("e1").insert();
-
+            PostgreSQLManager.getInstance("e1").insertAsJSON();
 
             DocumentSet.getInstance().documents.clear();
         }
-        MongoDBManager.getInstance("e1").insert();
-
-        DocumentSet.getInstance().documents.clear();
     }
-
-    public static void saveToPSQLAsJSON(String JSON) {  }
 
     public static void main(String[] args) throws Exception {
         generate("/home/snadal/UPC/Projects/MongoDBTests/data/generator_schemas/e1_withArrays.json");

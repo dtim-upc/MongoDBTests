@@ -13,6 +13,8 @@ public class MongoDBManager  {
 	private static MongoDBManager instance = null;
 	private static String collection;
 
+	private static MongoDatabase theDB;
+
 	public static MongoDBManager getInstance(String collection) {
 		if (instance == null)
 			instance = new MongoDBManager(collection);
@@ -22,12 +24,12 @@ public class MongoDBManager  {
 
 	public MongoDBManager(String collection) {
 		this.collection = collection;
-		//loadProperties();
+		MongoClient client = MongoClients.create();
+		theDB = client.getDatabase("ideas_experiments");
+		theDB.drop();
 	}
 
 	public void insert() {
-		MongoClient client = MongoClients.create();
-		MongoDatabase theDB = client.getDatabase("ideas_experiments");
 		theDB.getCollection(collection).insertMany(DocumentSet.getInstance().documents);
 	}
 	
