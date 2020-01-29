@@ -18,7 +18,8 @@ public class E1 {
             gen.generateFromPseudoJSONSchema(10,template).stream().map(d->Document.parse(d.toString())).
                     forEach(DocumentSet.getInstance().documents::add);
             MongoDBManager.getInstance("e1").insert();
-            PostgreSQLManager.getInstance("e1").insertAsJSON();
+            PostgreSQLManager.getInstance("e1", "e1", template).insertAsJSON();
+            PostgreSQLManager.getInstance("e1", "e1", template).insertAsTuple();
 
             DocumentSet.getInstance().documents.clear();
         }
