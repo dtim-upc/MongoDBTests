@@ -2,8 +2,8 @@ package edu.upc.essi.mongo.ideas_experiments;
 
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
-import edu.upc.essi.mongo.manager.MongoDBManager;
-import edu.upc.essi.mongo.manager.PostgreSQLManager;
+import edu.upc.essi.mongo.manager.E1_MongoDBManager;
+import edu.upc.essi.mongo.manager.E1_PostgreSQLManager;
 import org.bson.Document;
 
 /**
@@ -17,9 +17,13 @@ public class E1 {
         for (int i = 0; i < 10; ++i) {
             gen.generateFromPseudoJSONSchema(10,template).stream().map(d->Document.parse(d.toString())).
                     forEach(DocumentSet.getInstance().documents::add);
-            MongoDBManager.getInstance("e1").insert();
-            PostgreSQLManager.getInstance("e1", "e1", template).insertAsJSON();
-            PostgreSQLManager.getInstance("e1", "e1", template).insertAsTuple();
+
+            E1_MongoDBManager.getInstance("e1").insertAsJSONWithArray();
+            E1_MongoDBManager.getInstance("e1").insertAsJSONWithAttributes();
+            E1_PostgreSQLManager.getInstance("e1", template).insertAsJSONWithArray();
+            E1_PostgreSQLManager.getInstance("e1", template).insertAsJSONWithAttributes();
+            E1_PostgreSQLManager.getInstance("e1", template).insertAsTupleWithArray();
+            E1_PostgreSQLManager.getInstance("e1", template).insertAsTupleWithAttributes();
 
             DocumentSet.getInstance().documents.clear();
         }
