@@ -71,7 +71,7 @@ public class E1_MongoDBManager {
 		long startTime = System.nanoTime();
 		theDB.getCollection(collection + "_JSON_withArray").insertMany(DocumentSet.getInstance().documents);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsJSONWithArray-Mongo", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", "insert", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithArray() throws Exception {
@@ -88,7 +88,7 @@ public class E1_MongoDBManager {
 //		System.out.println("MongoDB sumJSONWithArray");
 		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumJSONWithArray-Mongo", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", "sum", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void insertAsJSONWithAttributes() {
@@ -103,7 +103,7 @@ public class E1_MongoDBManager {
 		long startTime = System.nanoTime();
 		theDB.getCollection(collection + "_JSON_withAttributes").insertMany(data);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsJSONWithAttributes-Mongo", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", "insert", "JSONWithAttributes", String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
@@ -123,7 +123,7 @@ public class E1_MongoDBManager {
 //		System.out.println("MongoDB sumJSONWithAttributes");
 		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumJSONWithAttributes-Mongo", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", "sum", "JSONWithAttributes", String.valueOf(elapsedTime) });
 	}
 
 	public ArrayList<String> getAttributListForE1(boolean withTypes) throws Exception {

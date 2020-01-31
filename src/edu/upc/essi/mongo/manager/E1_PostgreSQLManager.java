@@ -73,7 +73,7 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsJSONWithArray-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "insert", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithArray() throws SQLException {
@@ -89,7 +89,7 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumJSONWithArray-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void insertAsJSONWithAttributes() throws SQLException {
@@ -110,7 +110,7 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsJSONWithAttributes-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "insert", "JSONWithAttributes", String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
@@ -135,7 +135,7 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumJSONWithAttributes-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithAttributes", String.valueOf(elapsedTime) });
 
 	}
 
@@ -162,7 +162,7 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsTupleWithAttributes-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "insert", "TupleWithAttributes", String.valueOf(elapsedTime) });
 	}
 
 	public void sumTupleWithAttributes() throws Exception {
@@ -186,7 +186,7 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumTupleWithAttributes-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithAttributes", String.valueOf(elapsedTime) });
 	}
 
 	public void insertAsTupleWithArray() throws Exception {
@@ -212,7 +212,7 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "insertAsTupleWithArray-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "insert", "TupleWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void sumTupleWithArray() throws SQLException {
@@ -225,7 +225,7 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "sumTupleWithArray-Postgres", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public String getAttributesForE1(boolean withTypes) throws Exception {
