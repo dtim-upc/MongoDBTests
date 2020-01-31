@@ -70,8 +70,8 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sumJSONWithArray() throws SQLException {
-		String sql = "SELECT sum(loc)  from (SELECT  (jsonb_array_elements(o.\"json\"->'val'))::numeric loc  FROM  "
-				+ table + "_JSON_withArray o) a";
+		String sql = "select sum(X.loc::int) from "+
+				"(SELECT (jsonb_array_elements_text(\"json\"->'theArray')) as loc  FROM "+table+"_JSON_withArray) as X";
 
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);

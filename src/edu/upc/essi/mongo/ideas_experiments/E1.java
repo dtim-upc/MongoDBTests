@@ -38,11 +38,10 @@ public class E1 {
 		E1_PostgreSQLManager.getInstance("e1", template).sumTupleWithArray();
 		E1_PostgreSQLManager.getInstance("e1", template).sumTupleWithAttributes();
 		E1_PostgreSQLManager.getInstance("e1", template).sumJSONWithAttributes();
+		E1_PostgreSQLManager.getInstance("e1", template).sumJSONWithArray();
 		
-		
-//Not working		
-//		E1_PostgreSQLManager.getInstance("e1", template).sumJSONWithArray();
-//		E1_MongoDBManager.getInstance("e1", template).sumJSONWithAttributes();
+//Not working
+		E1_MongoDBManager.getInstance("e1", template).sumJSONWithAttributes();
 //        E1_MongoDBManager.getInstance("e1", template).sumJSONWithArray();
 	}
 

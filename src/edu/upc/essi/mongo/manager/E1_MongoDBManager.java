@@ -1,6 +1,7 @@
 package edu.upc.essi.mongo.manager;
 
 //import com.mongodb.Block;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
@@ -34,6 +35,10 @@ import javax.json.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonNull;
 import org.bson.Document;
+import org.bson.codecs.*;
+import org.bson.codecs.configuration.CodecProvider;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
 public class E1_MongoDBManager {
@@ -90,10 +95,9 @@ public class E1_MongoDBManager {
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
-
 		ArrayList<String> attribs = getAttributListForE1(false);
 
-		List<? extends Bson> pipeline = Arrays.asList(project(computed("fld", sum("fld", attribs))),
+		List pipeline = Arrays.asList(project(computed("fld", sum("fld", attribs))),
 				group(new BsonNull(), sum("fieldN", "$fld")));
 
 		System.out.println(pipeline);
