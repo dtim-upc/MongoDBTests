@@ -96,16 +96,18 @@ public class E1_MongoDBManager {
 
 	public void sumJSONWithAttributes() throws Exception {
 		ArrayList<String> attribs = getAttributListForE1(false);
+		List<String> mongoAtts = attribs.stream().map(a->"$"+a).collect(Collectors.toList());
 
-		List pipeline = Arrays.asList(project(computed("fld", sum("fld", attribs))),
-				group(new BsonNull(), sum("fieldN", "$fld")));
-
-		System.out.println(pipeline);
-
-		System.out.println(theDB.getCollection(collection + "_JSON_withAttributes").aggregate(pipeline).first());
-
-//		theDB.getCollection(collection + "_JSON_withAttributes").aggregate(pipeline);
-
+		Document groupStage = new Document();
+		groupStage.put("_id",null);
+		groupStage.put("totalsum", new Document("$sum","$localsum"));
+		System.out.println("MongoDB sumJSONWithAttributes");
+		System.out.println(
+			theDB.getCollection(collection + "_JSON_withAttributes").aggregate(Lists.newArrayList(
+				new Document("$project", new Document("localsum", new Document("$sum", mongoAtts))),
+				new Document("$group",groupStage)
+			)).first()
+		);
 	}
 
 	public ArrayList<String> getAttributListForE1(boolean withTypes) throws Exception {
