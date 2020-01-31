@@ -41,11 +41,17 @@ public class E1_PostgreSQLManager {
 
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
+
 		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
 				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-
 		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+
+//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 		JDBC.setAutoCommit(false);
 
 		JDBC.createStatement().execute("CREATE TABLE " + table + "_JSON_withArray (ID CHAR(24), JSON JSONB)");
@@ -90,6 +96,15 @@ public class E1_PostgreSQLManager {
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithArray", String.valueOf(elapsedTime) });
+	}
+
+	public void sizeJSONWithArray() throws SQLException {
+		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_JSON_withArray') );";
+		System.out.println(sql);
+		PreparedStatement stmt = JDBC.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		writer.writeNext(new String[] { "Postgres", "size", "JSONWithArray", "", rs.getString(1) });
 	}
 
 	public void insertAsJSONWithAttributes() throws SQLException {
@@ -137,6 +152,15 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithAttributes", String.valueOf(elapsedTime) });
 
+	}
+
+	public void sizeJSONWithAttributes() throws SQLException {
+		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_JSON_withAttributes') );";
+		System.out.println(sql);
+		PreparedStatement stmt = JDBC.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		writer.writeNext(new String[] { "Postgres", "size", "JSONWithAttributes", "", rs.getString(1) });
 	}
 
 	public void insertAsTupleWithAttributes() throws Exception {
@@ -189,6 +213,15 @@ public class E1_PostgreSQLManager {
 		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithAttributes", String.valueOf(elapsedTime) });
 	}
 
+	public void sizeTupleWithAttributes() throws SQLException {
+		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_TUPLE_withAttributes') );";
+		System.out.println(sql);
+		PreparedStatement stmt = JDBC.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		writer.writeNext(new String[] { "Postgres", "size", "TupleWithAttributes", "", rs.getString(1) });
+	}
+
 	public void insertAsTupleWithArray() throws Exception {
 		Statement statement = JDBC.createStatement();
 		DocumentSet.getInstance().documents.stream().map(d -> {
@@ -226,6 +259,15 @@ public class E1_PostgreSQLManager {
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithArray", String.valueOf(elapsedTime) });
+	}
+
+	public void sizeTupleWithArray() throws SQLException {
+		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_tuple_witharray') );";
+		System.out.println(sql);
+		PreparedStatement stmt = JDBC.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		writer.writeNext(new String[] { "Postgres", "size", "TupleWithArray", "", rs.getString(1) });
 	}
 
 	public String getAttributesForE1(boolean withTypes) throws Exception {

@@ -136,4 +136,21 @@ public class E1_MongoDBManager {
 		return list;
 	}
 
+	public void sizeJSONWithAttributes() {
+
+		Document result = theDB.runCommand(new Document("collStats", collection + "_JSON_withAttributes"));
+
+		writer.writeNext(new String[] { "Mongo", "size", "JSONWithAttributes", "", result.get("size").toString(),
+				result.get("storageSize").toString() });
+
+	}
+
+	public void sizeJSONWithArray() {
+
+		Document result = theDB.runCommand(new Document("collStats", collection + "_JSON_withArray"));
+
+		writer.writeNext(new String[] { "Mongo", "size", "JSONWithArray", "", result.get("size").toString(),
+				result.get("storageSize").toString() });
+	}
+
 }

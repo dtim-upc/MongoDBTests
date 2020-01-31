@@ -44,11 +44,18 @@ public class E1 {
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithAttributes();
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithArray();
 
+		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
+		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithArray();
+		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithArray();
+		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
+		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithArray();
+		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithAttributes();
 	}
 
 	public static void main(String[] args) throws Exception {
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e1.csv"));
-		writer.writeNext(new String[] { "DB", "operation", "parameter", "runtime (ns)" });
+		writer.writeNext(new String[] { "DB", "operation", "parameter", "runtime (ns)", "size", "compresed" });
+//		generate("/root/ideas/schemas/e1_withArrays.json", writer);
 		generate("data/generator_schemas/e1_withArrays.json", writer);
 		writer.close();
 	}
