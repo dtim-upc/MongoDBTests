@@ -68,18 +68,18 @@ public class E1_MongoDBManager {
 		theDB.getCollection(collection + "_JSON_withArray").insertMany(DocumentSet.getInstance().documents);
 	}
 
-	public void sumJSONWithArray() {
-//
-//		BsonField code = Accumulators.last("code", "$ape.code");
-//		BsonField label = Accumulators.last("label", "$ape.label");
-		BsonField count = Accumulators.sum("total", "$theArray");
-		Bson computed =Projections.computed("total", count);
-		
-		theDB.getCollection(collection + "_JSON_withArray")
-				.aggregate(Arrays.asList(
-						Aggregates.project(
-								computed))).first();
+	public void sumJSONWithArray() throws Exception {
+		Document groupStage = new Document();
+		groupStage.put("_id",null);
+		groupStage.put("totalsum", new Document("$sum","$localsum"));
 
+		int res = theDB.getCollection(collection + "_JSON_withArray").aggregate(Lists.newArrayList(
+						new Document("$project", new Document("localsum", new Document("$sum", "$theArray"))),
+						new Document("$group",groupStage)
+				)).first().getInteger("totalsum");
+
+		System.out.println("MongoDB sumJSONWithArray");
+		System.out.println(res);
 	}
 
 	public void insertAsJSONWithAttributes() {
@@ -101,13 +101,14 @@ public class E1_MongoDBManager {
 		Document groupStage = new Document();
 		groupStage.put("_id",null);
 		groupStage.put("totalsum", new Document("$sum","$localsum"));
-		System.out.println("MongoDB sumJSONWithAttributes");
-		System.out.println(
-			theDB.getCollection(collection + "_JSON_withAttributes").aggregate(Lists.newArrayList(
+
+		int res = theDB.getCollection(collection + "_JSON_withAttributes").aggregate(Lists.newArrayList(
 				new Document("$project", new Document("localsum", new Document("$sum", mongoAtts))),
 				new Document("$group",groupStage)
-			)).first()
-		);
+			)).first().getInteger("totalsum");
+
+		System.out.println("MongoDB sumJSONWithAttributes");
+		System.out.println(res);
 	}
 
 	public ArrayList<String> getAttributListForE1(boolean withTypes) throws Exception {

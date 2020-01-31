@@ -40,9 +40,7 @@ public class E1 {
 		E1_PostgreSQLManager.getInstance("e1", template).sumJSONWithAttributes();
 		E1_PostgreSQLManager.getInstance("e1", template).sumJSONWithArray();
 		E1_MongoDBManager.getInstance("e1", template).sumJSONWithAttributes();
-
-//Not working
-//        E1_MongoDBManager.getInstance("e1", template).sumJSONWithArray();
+		E1_MongoDBManager.getInstance("e1", template).sumJSONWithArray();
 	}
 
 	public static void main(String[] args) throws Exception {
