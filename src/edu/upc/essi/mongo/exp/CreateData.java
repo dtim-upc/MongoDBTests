@@ -8,13 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bson.Document;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Projections.*;
+import com.mongodb.client.model.Field;
 
 public class CreateData {
 
@@ -25,10 +30,10 @@ public class CreateData {
 
 		// Constant disk size
 		list.add(new Exper("40-13m", 40, 13000000));
-		list.add(new Exper("80-13m-2", 40 * 2, 13000000 / 2));
-		list.add(new Exper("160-13m-4", 40 * 4, 13000000 / 4));
-		list.add(new Exper("320-13m-8", 40 * 8, 13000000 / 8));
-		list.add(new Exper("640-13m-16", 40 * 16, 13000000 / 16));
+//		list.add(new Exper("80-13m-2", 40 * 2, 13000000 / 2));
+//		list.add(new Exper("160-13m-4", 40 * 4, 13000000 / 4));
+//		list.add(new Exper("320-13m-8", 40 * 8, 13000000 / 8));
+//		list.add(new Exper("640-13m-16", 40 * 16, 13000000 / 16));
 
 		// change document count
 		list.add(new Exper("80-2m", 80, 2000000));
@@ -70,16 +75,19 @@ public class CreateData {
 				File dir = new File(Const.FOLDER_BASE + exper.name);
 				dir.mkdir();
 				// change according to the mongodb instance
-				ProcessBuilder p1 = new ProcessBuilder(Const.MONGOD_LOC, "--config", Const.CONFIG_LOC, "--dbpath",
+				ProcessBuilder p1 = new ProcessBuilder("mongod", "--config", Const.CONFIG_LOC, "--dbpath",
 						Const.FOLDER_BASE + exper.name, "--bind_ip_all", "--fork", "--logpath", Const.LOG_LOC);
 				Process p;
 				p = p1.start();
 				int retval1 = p.waitFor();
 				System.out.println(Const.FOLDER_BASE + exper.name);
-				Mongo mongo = new Mongo("localhost", 27017);
-				DB db = mongo.getDB("final");// movies
+				MongoClient client = MongoClients.create();
+				MongoDatabase db = client.getDatabase("final");
 
-				DBCollection collection1 = db.getCollection(exper.name);
+//				Mongo mongo = new Mongo("localhost", 27017);
+//				DB db = mongo.getDB("final");// movies
+
+				MongoCollection collection1 = db.getCollection(exper.name);
 
 				for (int i = 0; i < exper.count; i++) {
 
@@ -90,19 +98,21 @@ public class CreateData {
 					if (i > 0 && i % 10000 == 0) {
 //						System.out.println(i);
 						if (!documents1.isEmpty()) {
-							collection1.insert(documents1);
+							collection1.insertMany(documents1);
 							documents1.clear();
 						}
 					}
 
 				}
 				if (!documents1.isEmpty()) {
-					collection1.insert(documents1);
+					collection1.insertMany(documents1);
 					documents1.clear();
 				}
 				ArrayList al = new ArrayList();
-				DBCursor x = collection1.find(new BasicDBObject(), new BasicDBObject("_id", 1));
-				for (DBObject dbObject : x) {
+				FindIterable<Document> x = collection1.find()
+						.projection(Projections.fields(Projections.include("_id")));
+
+				for (Document dbObject : x) {
 					al.add(dbObject.get("_id"));
 				}
 				System.out.println(al.size());
@@ -114,7 +124,7 @@ public class CreateData {
 				oos.writeObject(al);
 				oos.close();
 
-				mongo.close();
+				client.close();
 				ProcessBuilder p2 = new ProcessBuilder("mongo", "localhost:27017/admin", "--eval",
 						"db.shutdownServer()");
 				Process p3 = p2.start();
