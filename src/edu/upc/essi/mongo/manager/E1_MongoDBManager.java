@@ -23,6 +23,7 @@ import com.mongodb.client.model.Projections;
 import com.opencsv.CSVWriter;
 import com.mongodb.client.model.Filters;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -48,19 +49,26 @@ public class E1_MongoDBManager {
 	private static String collection;
 	private String schema;
 	private static CSVWriter writer;
+	private int size;
 
 	private static MongoDatabase theDB;
 
-	public static E1_MongoDBManager getInstance(String collection, String schema, CSVWriter writer) {
+	public static E1_MongoDBManager getInstance(String collection, String schema, CSVWriter writer) throws Exception {
 		if (instance == null)
 			instance = new E1_MongoDBManager(collection, schema, writer);
 		return instance;
 	}
 
-	public E1_MongoDBManager(String collection, String schema, CSVWriter writer) {
+	public static void resetInstance() {
+		instance = null;
+	}
+
+	public E1_MongoDBManager(String collection, String schema, CSVWriter writer) throws Exception {
 		this.collection = collection;
 		this.schema = schema;
 		this.writer = writer;
+		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
+		this.size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 
 		MongoClient client = MongoClients.create();
 		theDB = client.getDatabase("ideas_experiments");
@@ -71,7 +79,8 @@ public class E1_MongoDBManager {
 		long startTime = System.nanoTime();
 		theDB.getCollection(collection + "_JSON_withArray").insertMany(DocumentSet.getInstance().documents);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Mongo", "insert", "JSONWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(
+				new String[] { "Mongo", String.valueOf(size), "insert", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithArray() throws Exception {
@@ -88,7 +97,8 @@ public class E1_MongoDBManager {
 //		System.out.println("MongoDB sumJSONWithArray");
 		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Mongo", "sum", "JSONWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(
+				new String[] { "Mongo", String.valueOf(size), "sum", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void insertAsJSONWithAttributes() {
@@ -103,7 +113,8 @@ public class E1_MongoDBManager {
 		long startTime = System.nanoTime();
 		theDB.getCollection(collection + "_JSON_withAttributes").insertMany(data);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Mongo", "insert", "JSONWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", String.valueOf(size), "insert", "JSONWithAttributes",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
@@ -123,13 +134,13 @@ public class E1_MongoDBManager {
 //		System.out.println("MongoDB sumJSONWithAttributes");
 		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Mongo", "sum", "JSONWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Mongo", String.valueOf(size), "sum", "JSONWithAttributes",
+				String.valueOf(elapsedTime) });
 	}
 
 	public ArrayList<String> getAttributListForE1(boolean withTypes) throws Exception {
 		ArrayList<String> list = new ArrayList<>();
-		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
-		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
+
 		for (int i = 0; i < size; ++i) {
 			list.add("a" + i);
 		}
@@ -140,8 +151,8 @@ public class E1_MongoDBManager {
 
 		Document result = theDB.runCommand(new Document("collStats", collection + "_JSON_withAttributes"));
 
-		writer.writeNext(new String[] { "Mongo", "size", "JSONWithAttributes", "", result.get("size").toString(),
-				result.get("storageSize").toString() });
+		writer.writeNext(new String[] { "Mongo", String.valueOf(size), "size", "JSONWithAttributes", "",
+				result.get("size").toString(), result.get("storageSize").toString() });
 
 	}
 
@@ -149,8 +160,8 @@ public class E1_MongoDBManager {
 
 		Document result = theDB.runCommand(new Document("collStats", collection + "_JSON_withArray"));
 
-		writer.writeNext(new String[] { "Mongo", "size", "JSONWithArray", "", result.get("size").toString(),
-				result.get("storageSize").toString() });
+		writer.writeNext(new String[] { "Mongo", String.valueOf(size), "size", "JSONWithArray", "",
+				result.get("size").toString(), result.get("storageSize").toString() });
 	}
 
 }

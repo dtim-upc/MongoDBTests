@@ -5,6 +5,7 @@ import edu.upc.essi.mongo.datagen.Generator;
 import edu.upc.essi.mongo.manager.E1_MongoDBManager;
 import edu.upc.essi.mongo.manager.E1_PostgreSQLManager;
 
+import java.io.File;
 import java.io.FileWriter;
 
 import org.bson.Document;
@@ -50,13 +51,25 @@ public class E1 {
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithArray();
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithAttributes();
+
+		E1_MongoDBManager.resetInstance();
+		E1_PostgreSQLManager.resetInstance();
 	}
 
 	public static void main(String[] args) throws Exception {
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e1.csv"));
-		writer.writeNext(new String[] { "DB", "operation", "parameter", "runtime (ns)", "size", "compresed" });
+		writer.writeNext(
+				new String[] { "DB", "Array size", "operation", "parameter", "runtime (ns)", "size", "compresed" });
 //		generate("/root/ideas/schemas/e1_withArrays.json", writer);
-		generate("data/generator_schemas/e1_withArrays.json", writer);
+//		generate("data/generator_schemas/e1_withArrays.json", writer);
+
+		File templateBase = new File("data/generator_schemas/e1_withArrays");
+//		File templateBase = new File("/root/ideas/schemas/e1_withArrays");
+
+		for (String template : templateBase.list()) {
+			generate(templateBase + "/" + template, writer);
+		}
+
 		writer.close();
 	}
 

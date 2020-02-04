@@ -1,0 +1,17 @@
+{
+  "_id": true,
+  "type": "object",
+  "properties": {
+    "theArray": {
+      "type": "array",
+      "minSize": 64,
+      "maxSize": 64,
+      "contents": {
+        "type": "number",
+        "nullProbability": 0,
+        "minimum": -10,
+        "maximum": 10
+      }
+    }
+  }
+}

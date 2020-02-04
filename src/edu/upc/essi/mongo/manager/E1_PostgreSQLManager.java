@@ -27,6 +27,7 @@ public class E1_PostgreSQLManager {
 	private String table;
 	private String schema;
 	private Connection JDBC;
+	private int size;
 
 	public static E1_PostgreSQLManager getInstance(String table, String schema, CSVWriter writer) throws Exception {
 		if (instance == null)
@@ -34,10 +35,16 @@ public class E1_PostgreSQLManager {
 		return instance;
 	}
 
+	public static void resetInstance() {
+		instance = null;
+	}
+
 	public E1_PostgreSQLManager(String table, String schema, CSVWriter writer2) throws Exception {
 		this.table = table;
 		this.schema = schema;
 		this.writer = writer2;
+		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
+		this.size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
@@ -50,8 +57,8 @@ public class E1_PostgreSQLManager {
 //		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-
 //		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+
 		JDBC.setAutoCommit(false);
 
 		JDBC.createStatement().execute("CREATE TABLE " + table + "_JSON_withArray (ID CHAR(24), JSON JSONB)");
@@ -79,7 +86,8 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "insert", "JSONWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "JSONWithArray",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithArray() throws SQLException {
@@ -95,7 +103,8 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(
+				new String[] { "Postgres", String.valueOf(size), "sum", "JSONWithArray", String.valueOf(elapsedTime) });
 	}
 
 	public void sizeJSONWithArray() throws SQLException {
@@ -104,7 +113,8 @@ public class E1_PostgreSQLManager {
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
-		writer.writeNext(new String[] { "Postgres", "size", "JSONWithArray", "", rs.getString(1) });
+		writer.writeNext(
+				new String[] { "Postgres", String.valueOf(size), "size", "JSONWithArray", "", rs.getString(1) });
 	}
 
 	public void insertAsJSONWithAttributes() throws SQLException {
@@ -112,6 +122,7 @@ public class E1_PostgreSQLManager {
 		DocumentSet.getInstance().documents.stream().map(d -> {
 			Document copy = Document.parse(d.toJson());
 			String k = copy.remove("_id").toString();
+			System.out.println(copy);
 			return "INSERT INTO " + table + "_JSON_withAttributes(ID,JSON) VALUES ('" + k + "','{"
 					+ getAttributesAsDocumentForE1(copy) + "}')";
 		}).forEach(s -> {
@@ -125,7 +136,8 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "insert", "JSONWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "JSONWithAttributes",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
@@ -150,7 +162,8 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "sum", "JSONWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "JSONWithAttributes",
+				String.valueOf(elapsedTime) });
 
 	}
 
@@ -160,7 +173,8 @@ public class E1_PostgreSQLManager {
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
-		writer.writeNext(new String[] { "Postgres", "size", "JSONWithAttributes", "", rs.getString(1) });
+		writer.writeNext(
+				new String[] { "Postgres", String.valueOf(size), "size", "JSONWithAttributes", "", rs.getString(1) });
 	}
 
 	public void insertAsTupleWithAttributes() throws Exception {
@@ -186,7 +200,8 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "insert", "TupleWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "TupleWithAttributes",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sumTupleWithAttributes() throws Exception {
@@ -210,7 +225,8 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithAttributes", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "TupleWithAttributes",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sizeTupleWithAttributes() throws SQLException {
@@ -219,7 +235,8 @@ public class E1_PostgreSQLManager {
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
-		writer.writeNext(new String[] { "Postgres", "size", "TupleWithAttributes", "", rs.getString(1) });
+		writer.writeNext(
+				new String[] { "Postgres", String.valueOf(size), "size", "TupleWithAttributes", "", rs.getString(1) });
 	}
 
 	public void insertAsTupleWithArray() throws Exception {
@@ -245,7 +262,8 @@ public class E1_PostgreSQLManager {
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "insert", "TupleWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "TupleWithArray",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sumTupleWithArray() throws SQLException {
@@ -258,7 +276,8 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "sum", "TupleWithArray", String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "TupleWithArray",
+				String.valueOf(elapsedTime) });
 	}
 
 	public void sizeTupleWithArray() throws SQLException {
@@ -267,13 +286,14 @@ public class E1_PostgreSQLManager {
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
-		writer.writeNext(new String[] { "Postgres", "size", "TupleWithArray", "", rs.getString(1) });
+		writer.writeNext(
+				new String[] { "Postgres", String.valueOf(size), "size", "TupleWithArray", "", rs.getString(1) });
 	}
 
 	public String getAttributesForE1(boolean withTypes) throws Exception {
 		String out = "";
-		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
-		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
+//		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
+//		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 		for (int i = 0; i < size; ++i) {
 			out += "a" + i;
 			if (withTypes) {
@@ -286,8 +306,8 @@ public class E1_PostgreSQLManager {
 
 	public ArrayList<String> getAttributListForE1(boolean withTypes) throws Exception {
 		ArrayList<String> list = new ArrayList<>();
-		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
-		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
+//		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
+//		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 		for (int i = 0; i < size; ++i) {
 			list.add("a" + i);
 		}
