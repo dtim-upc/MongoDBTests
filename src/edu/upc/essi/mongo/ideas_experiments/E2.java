@@ -1,10 +1,13 @@
 package edu.upc.essi.mongo.ideas_experiments;
 
+import com.google.common.collect.Lists;
 import com.opencsv.CSVWriter;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
 import edu.upc.essi.mongo.manager.E1_MongoDBManager;
 import edu.upc.essi.mongo.manager.E1_PostgreSQLManager;
+import edu.upc.essi.mongo.manager.E2_MongoDBManager;
+import edu.upc.essi.mongo.manager.E2_PostgreSQLManager;
 import org.bson.Document;
 
 import javax.json.Json;
@@ -27,59 +30,50 @@ public class E2 {
 
 		Generator gen = Generator.getInstance();
 
-		JsonObject templateWithSiblings = generateTemplate(1,3,true,64);
-		File fileForTemplateWithSiblings = File.createTempFile("template-",".tmp");
-		fileForTemplateWithSiblings.deleteOnExit();
-		Files.write(fileForTemplateWithSiblings.toPath(),templateWithSiblings.toString().getBytes());
-		gen.generateFromPseudoJSONSchema(10, fileForTemplateWithSiblings.getAbsolutePath())
-				.stream().forEach(System.out::println);
+		for (int levels : Lists.newArrayList(1,2,4,8,16,32,64)) {
 
-		JsonObject templateWithoutSiblings = generateTemplate(1,3,false,64);
-		File fileForTemplateWithoutSiblings = File.createTempFile("template-",".tmp");
-		fileForTemplateWithoutSiblings.deleteOnExit();
-		Files.write(fileForTemplateWithoutSiblings.toPath(),templateWithoutSiblings.toString().getBytes());
-		gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath())
-				.stream().forEach(System.out::println);
+			JsonObject templateWithSiblings = generateTemplate(1, 3, true, 64);
+			File fileForTemplateWithSiblings = File.createTempFile("template-", ".tmp");
+			fileForTemplateWithSiblings.deleteOnExit();
+			Files.write(fileForTemplateWithSiblings.toPath(), templateWithSiblings.toString().getBytes());
+			gen.generateFromPseudoJSONSchema(10, fileForTemplateWithSiblings.getAbsolutePath())
+					.stream().forEach(System.out::println);
 
+			JsonObject templateWithoutSiblings = generateTemplate(1, 3, false, 64);
+			File fileForTemplateWithoutSiblings = File.createTempFile("template-", ".tmp");
+			fileForTemplateWithoutSiblings.deleteOnExit();
+			Files.write(fileForTemplateWithoutSiblings.toPath(), templateWithoutSiblings.toString().getBytes());
+			gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath())
+					.stream().forEach(System.out::println);
 
-		System.exit(1);
-
-		for (int levels = 1; levels <= 64; ++levels) {
-			String template = null;//generateTemplateForNonConstantDocument(levels,64,0);
-
+			//Experiment with siblings
 			for (int i = 0; i < 10; ++i) {
-				gen.generateFromPseudoJSONSchema(10, template).stream().map(d -> Document.parse(d.toString()))
+				gen.generateFromPseudoJSONSchema(10, fileForTemplateWithSiblings.getAbsolutePath()).stream().map(d -> Document.parse(d.toString()))
 						.forEach(DocumentSet.getInstance().documents::add);
-
-				System.out.println(DocumentSet.getInstance().documents);
-
-				//E1_MongoDBManager.getInstance("e1", template, writer).insertAsJSONWithArray();
+				E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).insert("_JSON_withSiblings");
+				E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).insert("_JSON_withSiblings");
 
 				DocumentSet.getInstance().documents.clear();
 			}
+			E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withSiblings");
+			E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withSiblings");
+
+			for (int i = 0; i < 10; ++i) {
+				gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath()).stream().map(d -> Document.parse(d.toString()))
+						.forEach(DocumentSet.getInstance().documents::add);
+				E2_MongoDBManager.getInstance("e2", fileForTemplateWithoutSiblings.getAbsolutePath(), writer).insert("_JSON_withoutSiblings");
+				E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithoutSiblings.getAbsolutePath(), writer).insert("_JSON_withoutSiblings");
+
+				DocumentSet.getInstance().documents.clear();
+			}
+			E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withoutSiblings");
+			E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withoutSiblings");
 		}
-
-
-/*
-		E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithAttributes();
-		E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithAttributes();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithAttributes();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithArray();
-
-		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
-		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithAttributes();
-
- */
 	}
 
 	private static JsonObject generateTemplate(int currentLevel, int levels, boolean addSiblings, int attributes) {
 		JsonObjectBuilder out = Json.createObjectBuilder();
+		if (currentLevel == 1) out.add("_id", JsonValue.TRUE);
 		if (currentLevel < levels) {
 			out.add("type","object");
 			JsonObjectBuilder properties = Json.createObjectBuilder();
@@ -87,7 +81,6 @@ public class E2 {
 					generateTemplate(++currentLevel,levels,addSiblings,attributes));
 			out.add("properties",properties);
 		} else {
-			//JsonObjectBuilder lastLevel = Json.createObjectBuilder();
 			out.add("type","object");
 			JsonObjectBuilder lastLevelProperties = Json.createObjectBuilder();
 			if (addSiblings) {
@@ -108,13 +101,6 @@ public class E2 {
 				lastLevelProperties.add("a"+(attributes<10?'0'+String.valueOf(attributes):String.valueOf(attributes)),A);
 			}
 			out.add("properties",lastLevelProperties);
-			//out.add()
-/*
-			out.add("type","number");
-			out.add("nullProbability", 0);
-			out.add("minimum", -10);
-			out.add("maximum", 10);
-			out.add()*/
 		}
 		return out.build();
 	}
