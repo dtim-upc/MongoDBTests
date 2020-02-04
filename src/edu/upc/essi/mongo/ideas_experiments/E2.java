@@ -30,44 +30,56 @@ public class E2 {
 
 		Generator gen = Generator.getInstance();
 
+		int attributes = 64;
 		for (int levels : Lists.newArrayList(1,2,4,8,16,32,64)) {
 
-			JsonObject templateWithSiblings = generateTemplate(1, 3, true, 64);
+			JsonObject templateWithSiblings = generateTemplate(1, levels, true, attributes);
 			File fileForTemplateWithSiblings = File.createTempFile("template-", ".tmp");
 			fileForTemplateWithSiblings.deleteOnExit();
 			Files.write(fileForTemplateWithSiblings.toPath(), templateWithSiblings.toString().getBytes());
-			gen.generateFromPseudoJSONSchema(10, fileForTemplateWithSiblings.getAbsolutePath())
-					.stream().forEach(System.out::println);
 
-			JsonObject templateWithoutSiblings = generateTemplate(1, 3, false, 64);
+			JsonObject templateWithoutSiblings = generateTemplate(1, 3, false, attributes);
 			File fileForTemplateWithoutSiblings = File.createTempFile("template-", ".tmp");
 			fileForTemplateWithoutSiblings.deleteOnExit();
 			Files.write(fileForTemplateWithoutSiblings.toPath(), templateWithoutSiblings.toString().getBytes());
-			gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath())
-					.stream().forEach(System.out::println);
 
 			//Experiment with siblings
+			String table1 = "e2_JSON_withSiblings"+"_"+levels+"levels";
 			for (int i = 0; i < 10; ++i) {
 				gen.generateFromPseudoJSONSchema(10, fileForTemplateWithSiblings.getAbsolutePath()).stream().map(d -> Document.parse(d.toString()))
 						.forEach(DocumentSet.getInstance().documents::add);
-				E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).insert("_JSON_withSiblings");
-				E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).insert("_JSON_withSiblings");
+				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).insert();
+				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).insert();
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withSiblings");
-			E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withSiblings");
+			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).sum();
+			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).sum();
 
+			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).size();
+			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).size();
+
+			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).destroyme();
+			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).destroyme();
+
+
+			String table2 = "e2_JSON_withoutSiblings"+"_"+levels+"levels";
 			for (int i = 0; i < 10; ++i) {
 				gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath()).stream().map(d -> Document.parse(d.toString()))
 						.forEach(DocumentSet.getInstance().documents::add);
-				E2_MongoDBManager.getInstance("e2", fileForTemplateWithoutSiblings.getAbsolutePath(), writer).insert("_JSON_withoutSiblings");
-				E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithoutSiblings.getAbsolutePath(), writer).insert("_JSON_withoutSiblings");
+				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).insert();
+				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).insert();
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			E2_MongoDBManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withoutSiblings");
-			E2_PostgreSQLManager.getInstance("e2", fileForTemplateWithSiblings.getAbsolutePath(), writer).sum(3, 64, "_JSON_withoutSiblings");
+			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).sum();
+			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).sum();
+
+			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).size();
+			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).size();
+
+			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).destroyme();
+			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).destroyme();
 		}
 	}
 
@@ -106,8 +118,8 @@ public class E2 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e1.csv"));
-		writer.writeNext(new String[] { "DB", "operation", "parameter", "runtime (ns)", "size", "compresed" });
+		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e2.csv"));
+		writer.writeNext(new String[] { "DB", "operation", "table", "levels", "attributes", "runtime (ns)", "size","compresed"});
 //		generate("/root/ideas/schemas/e1_withArrays.json", writer);
 		generate(writer);
 		writer.close();
