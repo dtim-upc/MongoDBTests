@@ -44,7 +44,7 @@ public class E1_PostgreSQLManager {
 		this.schema = schema;
 		this.writer = writer2;
 		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
-		this.size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
+		this.size = obj.getJsonObject("properties").getJsonObject("A00").getInt("maxSize");
 
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
@@ -65,7 +65,7 @@ public class E1_PostgreSQLManager {
 		JDBC.createStatement().execute("CREATE TABLE " + table + "_JSON_withAttributes (ID CHAR(24), JSON JSONB)");
 		JDBC.createStatement().execute(
 				"CREATE TABLE " + table + "_TUPLE_withAttributes (ID CHAR(24)," + getAttributesForE1(true) + ")");
-		JDBC.createStatement().execute("CREATE TABLE " + table + "_TUPLE_withArray (ID CHAR(24), theArray int[])");
+		JDBC.createStatement().execute("CREATE TABLE " + table + "_TUPLE_withArray (ID CHAR(24), \"A00\" int[])");
 		JDBC.commit();
 	}
 
@@ -92,7 +92,7 @@ public class E1_PostgreSQLManager {
 
 	public void sumJSONWithArray() throws SQLException {
 		String sql = "select sum(X.loc::int) from "
-				+ "(SELECT (jsonb_array_elements_text(\"json\"->'theArray')) as loc  FROM " + table
+				+ "(SELECT (jsonb_array_elements_text(\"json\"->'A00')) as loc  FROM " + table
 				+ "_JSON_withArray) as X";
 
 		System.out.println(sql);
@@ -245,7 +245,7 @@ public class E1_PostgreSQLManager {
 			try {
 				Document copy = Document.parse(d.toJson());
 				String k = copy.remove("_id").toString();
-				return "INSERT INTO " + table + "_TUPLE_withArray (ID,theArray) VALUES ('" + k + "','{"
+				return "INSERT INTO " + table + "_TUPLE_withArray (ID,\"A00\") VALUES ('" + k + "','{"
 						+ getValuesForE1(copy) + "}')";
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -267,7 +267,7 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sumTupleWithArray() throws SQLException {
-		String sql = "SELECT  SUM((SELECT SUM(s) FROM UNNEST(\"thearray\") s)) from  " + table + "_tuple_witharray;";
+		String sql = "SELECT  SUM((SELECT SUM(s) FROM UNNEST(\"A00\") s)) from  " + table + "_tuple_witharray;";
 
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 
@@ -295,7 +295,11 @@ public class E1_PostgreSQLManager {
 //		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
 //		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 		for (int i = 0; i < size; ++i) {
-			out += "a" + i;
+
+			if (i < 9)
+				out += "A0" + (i + 1);
+			else
+				out += "A" + (i + 1);
 			if (withTypes) {
 				out += " int";
 			}
@@ -309,20 +313,25 @@ public class E1_PostgreSQLManager {
 //		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
 //		int size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
 		for (int i = 0; i < size; ++i) {
-			list.add("a" + i);
+			if (i < 9)
+				list.add("A0" + (i + 1));
+			else
+				list.add("A" + (i + 1));
 		}
 		return list;
 	}
 
 	public String getValuesForE1(Document d) {
-		return d.getList("theArray", Integer.class).stream().map(i -> String.valueOf(i))
-				.collect(Collectors.joining(","));
+		return d.getList("A00", Integer.class).stream().map(i -> String.valueOf(i)).collect(Collectors.joining(","));
 	}
 
 	public String getAttributesAsDocumentForE1(Document d) {
 		String out = "";
-		for (int i = 0; i < d.getList("theArray", Integer.class).size(); ++i) {
-			out += "\"a" + i + "\":" + d.getList("theArray", Integer.class).get(i) + ",";
+		for (int i = 0; i < d.getList("A00", Integer.class).size(); ++i) {
+			if (i < 9)
+				out += "\"A0" + (i + 1) + "\":" + d.getList("A00", Integer.class).get(i) + ",";
+			else
+				out += "\"A" + (i + 1) + "\":" + d.getList("A00", Integer.class).get(i) + ",";
 		}
 		return out.substring(0, out.length() - 1);
 	}

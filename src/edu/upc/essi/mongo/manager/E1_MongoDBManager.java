@@ -68,7 +68,7 @@ public class E1_MongoDBManager {
 		this.schema = schema;
 		this.writer = writer;
 		JsonObject obj = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schema).toUri()))).readObject();
-		this.size = obj.getJsonObject("properties").getJsonObject("theArray").getInt("maxSize");
+		this.size = obj.getJsonObject("properties").getJsonObject("A00").getInt("maxSize");
 
 		MongoClient client = MongoClients.create();
 		theDB = client.getDatabase("ideas_experiments");
@@ -90,7 +90,7 @@ public class E1_MongoDBManager {
 		long startTime = System.nanoTime();
 		int res = theDB.getCollection(collection + "_JSON_withArray")
 				.aggregate(Lists.newArrayList(
-						new Document("$project", new Document("localsum", new Document("$sum", "$theArray"))),
+						new Document("$project", new Document("localsum", new Document("$sum", "$A00"))),
 						new Document("$group", groupStage)))
 				.first().getInteger("totalsum");
 
@@ -104,10 +104,13 @@ public class E1_MongoDBManager {
 	public void insertAsJSONWithAttributes() {
 		List<Document> data = DocumentSet.getInstance().documents.stream().map(d -> {
 			Document copy = Document.parse(d.toJson());
-			for (int i = 0; i < copy.getList("theArray", Integer.class).size(); ++i) {
-				copy.put("a" + i, copy.getList("theArray", Integer.class).get(i));
+			for (int i = 0; i < copy.getList("A00", Integer.class).size(); ++i) {
+				if (i < 9)
+					copy.put("A0" + (i + 1), copy.getList("A00", Integer.class).get(i));
+				else
+					copy.put("A" + (i + 1), copy.getList("A00", Integer.class).get(i));
 			}
-			copy.remove("theArray");
+			copy.remove("A00");
 			return copy;
 		}).collect(Collectors.toList());
 		long startTime = System.nanoTime();
@@ -142,7 +145,10 @@ public class E1_MongoDBManager {
 		ArrayList<String> list = new ArrayList<>();
 
 		for (int i = 0; i < size; ++i) {
-			list.add("a" + i);
+			if (i < 9)
+				list.add("A0" + (i + 1));
+			else
+				list.add("A" + (i + 1));
 		}
 		return list;
 	}

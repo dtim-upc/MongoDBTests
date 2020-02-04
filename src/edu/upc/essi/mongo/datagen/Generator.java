@@ -27,7 +27,8 @@ public class Generator {
 	}
 
 	private Object getNextID() throws RuntimeException {
-		if (idIndex == list64m.size()) throw new RuntimeException("Exceeded IDs limit");
+		if (idIndex == list64m.size())
+			throw new RuntimeException("Exceeded IDs limit");
 		return list64m.get(idIndex++);
 	}
 
@@ -38,9 +39,12 @@ public class Generator {
 		return generator_instance;
 	}
 
-	public JsonArray generateFromPseudoJSONSchema(int documentCount, String schemaPath) throws RuntimeException,Exception {
-		JsonObject schema = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schemaPath).toUri()))).readObject();
-		if (!schema.getString("type").equals("object")) throw new RuntimeException("The type of the root must be object");
+	public JsonArray generateFromPseudoJSONSchema(int documentCount, String schemaPath)
+			throws RuntimeException, Exception {
+		JsonObject schema = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schemaPath).toUri())))
+				.readObject();
+		if (!schema.getString("type").equals("object"))
+			throw new RuntimeException("The type of the root must be object");
 		JsonArrayBuilder out = Json.createArrayBuilder();
 		for (int i = 0; i < documentCount; ++i) {
 			out.add(generateJSONObject(schema));
@@ -54,18 +58,22 @@ public class Generator {
 			out.add("_id", getNextID().toString());
 		schema.getJsonObject("properties").keySet().forEach(prop -> {
 			JsonObject property = schema.getJsonObject("properties").getJsonObject(prop);
-			if (property.containsKey("nullProbability") && Math.random() < property.getJsonNumber("nullProbability").doubleValue()) {
+			if (property.containsKey("nullProbability")
+					&& Math.random() < property.getJsonNumber("nullProbability").doubleValue()) {
 				out.add(prop, JsonValue.NULL);
 			} else {
 				switch (property.getString("type")) {
-					case "number":
-						out.add(prop, generateNumber(property)); break;
-					case "string":
-						out.add(prop, generateString(property)); break;
-					case "object":
-						out.add(prop,generateJSONObject(property)); break;
-					case "array":
-						out.add(prop,generateJsonArray(property));
+				case "number":
+					out.add(prop, generateNumber(property));
+					break;
+				case "string":
+					out.add(prop, generateString(property));
+					break;
+				case "object":
+					out.add(prop, generateJSONObject(property));
+					break;
+				case "array":
+					out.add(prop, generateJsonArray(property));
 				}
 			}
 		});
@@ -75,28 +83,30 @@ public class Generator {
 	// from https://mkyong.com/java/java-generate-random-integers-in-a-range/
 	private JsonArray generateJsonArray(JsonObject property) {
 		JsonArrayBuilder arr = Json.createArrayBuilder();
-		int howMany = new SplittableRandom().nextInt((property.getJsonNumber("maxSize").intValue() -
-				property.getJsonNumber("minSize").intValue()) + 1) + property.getJsonNumber("minSize").intValue();
+		int howMany = new SplittableRandom().nextInt(
+				(property.getJsonNumber("maxSize").intValue() - property.getJsonNumber("minSize").intValue()) + 1)
+				+ property.getJsonNumber("minSize").intValue();
 		switch (property.getJsonObject("contents").getString("type")) {
-			case "number":
-				for (int i = 0; i < howMany; ++i) {
-					arr.add(generateNumber(property.getJsonObject("contents")));
-				}
-				break;
-			case "string":
-				for (int i = 0; i < howMany; ++i) {
-					arr.add(generateString(property.getJsonObject("contents")));
-				}
-				break;
-			case "object":
-				for (int i = 0; i < howMany; ++i) {
-					arr.add(generateJSONObject(property.getJsonObject("contents")));
-				}
-				break;
-			case "array":
-				for (int i = 0; i < howMany; ++i) {
-					arr.add(generateJsonArray(property.getJsonObject("contents")));
-				};
+		case "number":
+			for (int i = 0; i < howMany; ++i) {
+				arr.add(generateNumber(property.getJsonObject("contents")));
+			}
+			break;
+		case "string":
+			for (int i = 0; i < howMany; ++i) {
+				arr.add(generateString(property.getJsonObject("contents")));
+			}
+			break;
+		case "object":
+			for (int i = 0; i < howMany; ++i) {
+				arr.add(generateJSONObject(property.getJsonObject("contents")));
+			}
+			break;
+		case "array":
+			for (int i = 0; i < howMany; ++i) {
+				arr.add(generateJsonArray(property.getJsonObject("contents")));
+			}
+			;
 		}
 		return arr.build();
 	}
@@ -112,9 +122,10 @@ public class Generator {
 			return generateNumber(0, 1000);
 	}
 
-	//from https://stackoverflow.com/questions/11743267/get-random-numbers-in-a-specific-range-in-java
+	// from
+	// https://stackoverflow.com/questions/11743267/get-random-numbers-in-a-specific-range-in-java
 	private int generateNumber(int lowerbound, int upperbound) {
-		return new SplittableRandom().nextInt(upperbound-lowerbound) + lowerbound;
+		return new SplittableRandom().nextInt(upperbound - lowerbound + 1) + lowerbound;
 	}
 
 	private String generateString(JsonObject property) {
@@ -127,7 +138,7 @@ public class Generator {
 		return generateStringWithSize(property.getJsonNumber("size").intValue());
 	}
 
-	//from https://www.baeldung.com/java-random-list-element
+	// from https://www.baeldung.com/java-random-list-element
 	private String generateStringFromDomain(JsonArray domain) {
 		return domain.getString(new SplittableRandom().nextInt(domain.size()));
 	}

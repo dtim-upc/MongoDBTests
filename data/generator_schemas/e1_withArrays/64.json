@@ -2,7 +2,7 @@
   "_id": true,
   "type": "object",
   "properties": {
-    "theArray": {
+    "A00": {
       "type": "array",
       "minSize": 64,
       "maxSize": 64,
