@@ -62,7 +62,8 @@ public class E2 {
 			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).destroyme();
 			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).destroyme();
 
-
+			gen.resetIndex();
+			
 			String table2 = "e2_JSON_withoutSiblings"+"_"+levels+"levels";
 			for (int i = 0; i < 10; ++i) {
 				gen.generateFromPseudoJSONSchema(10, fileForTemplateWithoutSiblings.getAbsolutePath()).stream().map(d -> Document.parse(d.toString()))
@@ -80,6 +81,8 @@ public class E2 {
 
 			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).destroyme();
 			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).destroyme();
+			
+			gen.resetIndex();
 		}
 	}
 

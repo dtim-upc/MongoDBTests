@@ -59,7 +59,7 @@ public class E1_MongoDBManager {
 		return instance;
 	}
 
-	public static void resetInstance() {
+	public void resetInstance() {
 		instance = null;
 	}
 

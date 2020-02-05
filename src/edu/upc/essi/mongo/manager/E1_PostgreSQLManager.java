@@ -35,7 +35,7 @@ public class E1_PostgreSQLManager {
 		return instance;
 	}
 
-	public static void resetInstance() {
+	public void resetInstance() {
 		instance = null;
 	}
 
@@ -122,7 +122,6 @@ public class E1_PostgreSQLManager {
 		DocumentSet.getInstance().documents.stream().map(d -> {
 			Document copy = Document.parse(d.toJson());
 			String k = copy.remove("_id").toString();
-			System.out.println(copy);
 			return "INSERT INTO " + table + "_JSON_withAttributes(ID,JSON) VALUES ('" + k + "','{"
 					+ getAttributesAsDocumentForE1(copy) + "}')";
 		}).forEach(s -> {

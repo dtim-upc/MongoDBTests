@@ -52,8 +52,9 @@ public class E1 {
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithArray();
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeTupleWithAttributes();
 
-		E1_MongoDBManager.resetInstance();
-		E1_PostgreSQLManager.resetInstance();
+		E1_MongoDBManager.getInstance("e1", template, writer).resetInstance();
+		E1_PostgreSQLManager.getInstance("e1", template, writer).resetInstance();
+		gen.resetIndex();
 	}
 
 	public static void main(String[] args) throws Exception {
