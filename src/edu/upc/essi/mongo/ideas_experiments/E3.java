@@ -1,0 +1,106 @@
+package edu.upc.essi.mongo.ideas_experiments;
+
+import com.google.common.collect.Lists;
+import com.opencsv.CSVWriter;
+import edu.upc.essi.mongo.datagen.DocumentSet;
+import edu.upc.essi.mongo.datagen.E3_DocumentSet;
+import edu.upc.essi.mongo.datagen.Generator;
+import edu.upc.essi.mongo.manager.E2_MongoDBManager;
+import edu.upc.essi.mongo.manager.E2_PostgreSQLManager;
+import edu.upc.essi.mongo.manager.E3_MongoDBManager;
+import org.bson.Document;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
+
+/**
+ * Experiment 3: The goal of this experiment is to evaluate the impact of nulls
+ */
+public class E3 {
+
+	private static boolean trueBooleans (int howMany,boolean ... bools) {
+		int total = 0;
+		for (boolean b:bools)
+			if (b && (++total == howMany)) return true;
+		return false;
+	}
+
+	public static boolean NULLS_ARE_TEXT = true;
+	public static boolean NULLS_ARE_NOTHING = false;
+	public static boolean NULLS_ARE_ZERO = false;
+
+	public static void generate(CSVWriter writer) throws Exception {
+		if (!trueBooleans(1,NULLS_ARE_TEXT,NULLS_ARE_NOTHING,NULLS_ARE_ZERO)) {
+			throw new Exception("Only one boolean can be set");
+		}
+
+		Generator gen = Generator.getInstance();
+
+		/**
+		 * Probabilities follow a distribution $f(i) = 2^{-i}$
+		 *
+		 * i=15 creates the following probabilities
+		 * 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625, 0.001953125,
+		 * 9.765625E-4, 4.8828125E-4, 2.4414062E-4, 1.2207031E-4, 6.1035156E-5
+		 */
+		float currentProbability = 1f;
+		for (int i = 1; i < 15; ++i) {
+			JsonObject template = generateTemplate(currentProbability);
+			File templateFile = File.createTempFile("template-", ".tmp"); templateFile.deleteOnExit();
+			Files.write(templateFile.toPath(), template.toString().getBytes());
+			for (int j = 0; j < 2; ++j) {
+				gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath()).stream()
+						.map(d -> Document.parse(d.toString())).forEach(d -> {
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d);
+
+					Document d2 = new Document(d);
+					if (d2.get("a")==null)d2.remove("a");
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
+
+					Document d3 = new Document(d);
+					if (d3.get("a")==null) d3.remove("a"); d3.put("a",0);
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.add(d3);
+				});
+				E3_MongoDBManager.getInstance("e3_"+currentProbability,currentProbability,writer).insert();
+				E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.clear();
+				E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.clear();
+				E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
+			}
+			currentProbability /= 2;
+		}
+	}
+
+	private static JsonObject generateTemplate(float probability) {
+		JsonObjectBuilder out = Json.createObjectBuilder();
+		out.add("_id", JsonValue.TRUE);
+		out.add("type", "object");
+		JsonObjectBuilder properties = Json.createObjectBuilder();
+		JsonObjectBuilder A = Json.createObjectBuilder();
+		A.add("type", "number");
+		A.add("nullProbability", probability);
+		A.add("minimum", -10);
+		A.add("maximum", 10);
+		JsonObjectBuilder B = Json.createObjectBuilder();
+		B.add("type", "string");
+		B.add("size", 10);
+		properties.add("a",A);
+		properties.add("b",B);
+		out.add("properties",properties);
+		return out.build();
+	}
+
+	public static void main(String[] args) throws Exception {
+		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e3.csv"));
+		writer.writeNext(new String[] { "DB", "operation", "table", "levels", "attributes", "runtime (ns)", "size",
+				"compresed" });
+//		generate("/root/ideas/schemas/e1_withArrays.json", writer);
+		generate(writer);
+		writer.close();
+	}
+
+}
