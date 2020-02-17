@@ -13,6 +13,12 @@ public class E3_DocumentSet {
 	public List<Document> documents_NULLS_ARE_NOTHING;
 	public List<Document> documents_NULLS_ARE_ZERO;
 
+	public List<Document> getByName(String name) {
+		if (name.equals("_NULLS_ARE_TEXT")) return documents_NULLS_ARE_TEXT;
+		if (name.equals("_NULLS_ARE_NOTHING")) return documents_NULLS_ARE_NOTHING;
+		else return documents_NULLS_ARE_ZERO;
+	}
+
 	public static E3_DocumentSet getInstance() {
 		if (instance == null)
 			instance = new E3_DocumentSet();

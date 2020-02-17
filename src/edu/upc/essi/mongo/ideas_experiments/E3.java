@@ -48,34 +48,57 @@ public class E3 {
 		 * 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625, 0.001953125,
 		 * 9.765625E-4, 4.8828125E-4, 2.4414062E-4, 1.2207031E-4, 6.1035156E-5
 		 */
-		float currentProbability = 1f;
-		for (int i = 1; i < 15; ++i) {
-			JsonObject template = generateTemplate(currentProbability);
-			File templateFile = File.createTempFile("template-", ".tmp"); templateFile.deleteOnExit();
+		for (int i = 0; i < 15; ++i) {
+			JsonObject template = generateTemplate(Math.pow(2,-i));
+			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 			Files.write(templateFile.toPath(), template.toString().getBytes());
 			for (int j = 0; j < 2; ++j) {
 				gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
+					//get rid of 0s
+					if (d.get("a") != null && d.getInteger("a")==0) {
+						d.remove("a");d.put("a",1);
+					}
 					E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d);
 
-					Document d2 = new Document(d);
+					Document d2 = Document.parse(d.toJson());
 					if (d2.get("a")==null)d2.remove("a");
 					E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
 
-					Document d3 = new Document(d);
-					if (d3.get("a")==null) d3.remove("a"); d3.put("a",0);
+					Document d3 = Document.parse(d.toJson());
+					if (d3.get("a")==null) {
+						d3.remove("a");
+						d3.put("a",0);
+					}
 					E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.add(d3);
 				});
-				E3_MongoDBManager.getInstance("e3_"+currentProbability,currentProbability,writer).insert();
+				E3_MongoDBManager.getInstance("e3_"+i,i,writer).insert("_NULLS_ARE_TEXT");
+				E3_MongoDBManager.getInstance("e3_"+i,i,writer).insert("_NULLS_ARE_NOTHING");
+				E3_MongoDBManager.getInstance("e3_"+i,i,writer).insert("_NULLS_ARE_ZERO");
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.clear();
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.clear();
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
 			}
-			currentProbability /= 2;
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).sum("_NULLS_ARE_TEXT");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).sum("_NULLS_ARE_NOTHING");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).sum("_NULLS_ARE_ZERO");
+
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNulls("_NULLS_ARE_TEXT");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNulls("_NULLS_ARE_NOTHING");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNulls("_NULLS_ARE_ZERO");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNotNulls("_NULLS_ARE_TEXT");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNotNulls("_NULLS_ARE_NOTHING");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNotNulls("_NULLS_ARE_ZERO");
+
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).size("_NULLS_ARE_TEXT");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).size("_NULLS_ARE_NOTHING");
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).size("_NULLS_ARE_ZERO");
+
+			E3_MongoDBManager.getInstance("e3_"+i,i,writer).destroyme();
 		}
 	}
 
-	private static JsonObject generateTemplate(float probability) {
+	private static JsonObject generateTemplate(double probability) {
 		JsonObjectBuilder out = Json.createObjectBuilder();
 		out.add("_id", JsonValue.TRUE);
 		out.add("type", "object");
