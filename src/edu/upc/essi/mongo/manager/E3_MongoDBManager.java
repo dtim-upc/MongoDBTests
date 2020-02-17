@@ -53,7 +53,7 @@ public class E3_MongoDBManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		System.out.println(res);
 
-		writer.writeNext(new String[] { "Mongo", "sum", collection+kind, String.valueOf(probability),
+		writer.writeNext(new String[] { "Mongo", "sum", kind, String.valueOf(probability),
 				String.valueOf(elapsedTime)});
 	}
 
@@ -83,8 +83,7 @@ public class E3_MongoDBManager {
 			elapsedTime = System.nanoTime() - startTime;
 			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
 		}
-		writer.writeNext(new String[] { "Mongo", "countNulls", collection+kind, String.valueOf(probability),
-				String.valueOf(elapsedTime)});
+		writer.writeNext(new String[] { "Mongo", "countNulls", kind, String.valueOf(probability),String.valueOf(elapsedTime)});
 	}
 
 	public void countNotNulls(String kind) {
@@ -113,14 +112,14 @@ public class E3_MongoDBManager {
 			elapsedTime = System.nanoTime() - startTime;
 			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
 		}
-		writer.writeNext(new String[] { "Mongo", "countNulls", collection+kind, String.valueOf(probability),
+		writer.writeNext(new String[] { "Mongo", "countNulls", kind, String.valueOf(probability),
 				String.valueOf(elapsedTime)});
 
 	}
 
 	public void size(String kind) {
 		Document result = theDB.runCommand(new Document("collStats", collection+kind));
-		writer.writeNext(new String[] { "Mongo", "size", collection+kind, String.valueOf(probability),
+		writer.writeNext(new String[] { "Mongo", "size", kind, String.valueOf(probability),
 				"", result.get("size").toString(),
 				result.get("storageSize").toString() });
 	}

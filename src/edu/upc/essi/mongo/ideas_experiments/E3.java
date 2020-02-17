@@ -119,7 +119,7 @@ public class E3 {
 
 	public static void main(String[] args) throws Exception {
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e3.csv"));
-		writer.writeNext(new String[] { "DB", "operation", "table", "levels", "attributes", "runtime (ns)", "size",
+		writer.writeNext(new String[] { "DB", "operation", "storage", "probability",  "runtime (ns)", "size",
 				"compresed" });
 //		generate("/root/ideas/schemas/e1_withArrays.json", writer);
 		generate(writer);
