@@ -40,7 +40,8 @@ public class E3_MongoDBManager {
 		theDB.getCollection(collection+kind).insertMany(E3_DocumentSet.getInstance().getByName(kind));
 		long elapsedTime = System.nanoTime() - startTime;
 		
-		writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_")+1), String.valueOf(Math.pow(2,-probability)), String.valueOf(elapsedTime)	});
+		writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_")+1),
+				String.valueOf(1d-Math.pow(2,-probability)), String.valueOf(elapsedTime)	});
 	}
 
 	public void sum(String kind) {
@@ -54,8 +55,8 @@ public class E3_MongoDBManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		System.out.println(res);
 
-		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_")+1), String.valueOf(Math.pow(2,-probability)),
-				String.valueOf(elapsedTime)});
+		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_")+1),
+				String.valueOf(1d-Math.pow(2,-probability)),String.valueOf(elapsedTime)});
 	}
 
 	public void countNulls(String kind) {
@@ -84,7 +85,8 @@ public class E3_MongoDBManager {
 			elapsedTime = System.nanoTime() - startTime;
 			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
 		}
-		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1), String.valueOf(Math.pow(2,-probability)),String.valueOf(elapsedTime)});
+		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1),
+				String.valueOf(1d-Math.pow(2,-probability)),String.valueOf(elapsedTime)});
 	}
 
 	public void countNotNulls(String kind) {
@@ -113,15 +115,15 @@ public class E3_MongoDBManager {
 			elapsedTime = System.nanoTime() - startTime;
 			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
 		}
-		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1), String.valueOf(Math.pow(2,-probability)),
-				String.valueOf(elapsedTime)});
+		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1),
+				String.valueOf(1d-Math.pow(2,-probability)),String.valueOf(elapsedTime)});
 
 	}
 
 	public void size(String kind) {
 		Document result = theDB.runCommand(new Document("collStats", collection+kind));
-		writer.writeNext(new String[] { "Mongo", "size", kind.substring(kind.lastIndexOf("_")+1), String.valueOf(Math.pow(2,-probability)),
-				"", result.get("size").toString(),
+		writer.writeNext(new String[] { "Mongo", "size", kind.substring(kind.lastIndexOf("_")+1),
+				String.valueOf(1d-Math.pow(2,-probability)),"", result.get("size").toString(),
 				result.get("storageSize").toString() });
 	}
 
