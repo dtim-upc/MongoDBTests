@@ -65,13 +65,25 @@ public class E3_PostgreSQLManager {
 				}
 			});
 		} else {
-			
+			E3_DocumentSet.getInstance().getByName(kind).stream().map(d -> {
+				Document copy = Document.parse(d.toJson());
+				String k = copy.remove("_id").toString();
+				Object a = copy.get("a");
+				String b = copy.getString("b");
+				return "INSERT INTO " + table + "_TUPLE" + kind + "(ID,a,b) VALUES ('" + k + "'," + a + ", '"+b+"')";
+			}).forEach(s -> {
+				try {
+					statement.addBatch(s);
+				} catch (SQLException exc) {
+					exc.printStackTrace();
+				}
+			});
 		}
 		long startTime = System.nanoTime();
 		statement.executeBatch();
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres", "sum",
+		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "insert",
 				kind.substring(kind.lastIndexOf("_")+1), String.valueOf(1d-Math.pow(2,-probability)),
 				String.valueOf(elapsedTime)});
 	}
@@ -81,6 +93,8 @@ public class E3_PostgreSQLManager {
 		if (isJSON) {
 			String expr = "sum((json->>'a')::int)";
 			sql = "select "+expr+" from " + table + "_JSON" + kind;
+		} else {
+			sql = "select sum(a) from " + table + "_TUPLE" + kind;
 		}
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();
@@ -88,7 +102,7 @@ public class E3_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres", "sum",
+		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "sum",
 				kind.substring(kind.lastIndexOf("_")+1), String.valueOf(1d-Math.pow(2,-probability)),
 				String.valueOf(elapsedTime)});
 	}
@@ -100,6 +114,11 @@ public class E3_PostgreSQLManager {
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING")) expr = "json->>'a' is null";
 			else expr = "(json->>'a')::int = 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where "+expr;
+		} else {
+			if (kind.equals("_NULLS_ARE_TEXT"))
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a is null";
+			else if (kind.equals("_NULLS_ARE_ZERO"))
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a=0";
 		}
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();
@@ -107,7 +126,7 @@ public class E3_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres", "countNulls",
+		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "countNulls",
 				kind.substring(kind.lastIndexOf("_")+1), String.valueOf(1d-Math.pow(2,-probability)),
 				String.valueOf(elapsedTime)});
 
@@ -120,6 +139,11 @@ public class E3_PostgreSQLManager {
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING")) expr = "json->>'a' is not null";
 			else expr = "(json->>'a')::int <> 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where "+expr;
+		} else {
+			if (kind.equals("_NULLS_ARE_TEXT"))
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a is not null";
+			else if (kind.equals("_NULLS_ARE_ZERO"))
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a<>0";
 		}
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();
@@ -127,22 +151,21 @@ public class E3_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres", "countNulls",
+		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "countNotNulls",
 				kind.substring(kind.lastIndexOf("_")+1), String.valueOf(1d-Math.pow(2,-probability)),
 				String.valueOf(elapsedTime)});
 	}
 
-	/**
-	public void size() throws SQLException {
+	public void size(boolean isJSON, String kind) throws SQLException {
 		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "') );";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
-		writer.writeNext(new String[] { "Postgres", "size", table, String.valueOf(nLevels), String.valueOf(nAttributes),
-				"", rs.getString(1) });
+		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "size",
+				String.valueOf(1d-Math.pow(2,-probability)),"", rs.getString(1) });
 	}
-**/
+
 	public void destroyme() {
 		instance = null;
 	}

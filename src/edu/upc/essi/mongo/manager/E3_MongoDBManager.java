@@ -115,7 +115,7 @@ public class E3_MongoDBManager {
 			elapsedTime = System.nanoTime() - startTime;
 			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
 		}
-		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1),
+		writer.writeNext(new String[] { "Mongo", "countNotNulls", kind.substring(kind.lastIndexOf("_")+1),
 				String.valueOf(1d-Math.pow(2,-probability)),String.valueOf(elapsedTime)});
 
 	}

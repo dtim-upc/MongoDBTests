@@ -79,6 +79,8 @@ public class E3 {
 				E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).insert(true,"_NULLS_ARE_TEXT");
 				E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).insert(true,"_NULLS_ARE_NOTHING");
 				E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).insert(true,"_NULLS_ARE_ZERO");
+				E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).insert(false,"_NULLS_ARE_TEXT");
+				E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).insert(false,"_NULLS_ARE_ZERO");
 
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.clear();
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.clear();
@@ -90,6 +92,9 @@ public class E3 {
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).sum(true,"_NULLS_ARE_TEXT");
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).sum(true,"_NULLS_ARE_NOTHING");
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).sum(true,"_NULLS_ARE_ZERO");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).sum(false,"_NULLS_ARE_TEXT");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).sum(false,"_NULLS_ARE_ZERO");
+
 
 			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNulls("_NULLS_ARE_TEXT");
 			E3_MongoDBManager.getInstance("e3_"+i,i,writer).countNulls("_NULLS_ARE_NOTHING");
@@ -103,6 +108,10 @@ public class E3 {
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNotNulls(true, "_NULLS_ARE_TEXT");
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNotNulls(true, "_NULLS_ARE_NOTHING");
 			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNotNulls(true, "_NULLS_ARE_ZERO");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNulls(false, "_NULLS_ARE_TEXT");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNulls(false, "_NULLS_ARE_ZERO");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNotNulls(false, "_NULLS_ARE_TEXT");
+			E3_PostgreSQLManager.getInstance("e3_"+i,i,writer).countNotNulls(false, "_NULLS_ARE_ZERO");
 
 
 			E3_MongoDBManager.getInstance("e3_"+i,i,writer).size("_NULLS_ARE_TEXT");
