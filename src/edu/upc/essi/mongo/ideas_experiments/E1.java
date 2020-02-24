@@ -38,13 +38,14 @@ public class E1 {
 
 		}
 
-		E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithAttributes();
-		E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithArray();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithAttributes();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithAttributes();
-		E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithArray();
-
+		for (int j = 0; j < 50; j++) {
+			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithAttributes();
+			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithArray();
+			E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithArray();
+			E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithAttributes();
+			E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithAttributes();
+			E1_PostgreSQLManager.getInstance("e1", template, writer).sumJSONWithArray();
+		}
 		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithAttributes();
 		E1_MongoDBManager.getInstance("e1", template, writer).sizeJSONWithArray();
 		E1_PostgreSQLManager.getInstance("e1", template, writer).sizeJSONWithArray();

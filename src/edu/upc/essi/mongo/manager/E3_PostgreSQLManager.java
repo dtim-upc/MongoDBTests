@@ -172,7 +172,8 @@ public class E3_PostgreSQLManager {
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
 		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "size",
-				String.valueOf(1d - Math.pow(2, -probability)), "", rs.getString(1) });
+				kind.substring(kind.lastIndexOf("_") + 1), String.valueOf(1d - Math.pow(2, -probability)), "",
+				rs.getString(1) });
 	}
 
 	public void destroyme() {

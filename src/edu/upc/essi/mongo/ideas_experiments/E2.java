@@ -53,9 +53,10 @@ public class E2 {
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).sum();
-			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).sum();
-
+			for (int j = 0; j < 50; j++) {
+				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).sum();
+				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).sum();
+			}
 			E2_MongoDBManager.getInstance(table1, levels, attributes, writer).size();
 			E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).size();
 
@@ -73,9 +74,10 @@ public class E2 {
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).sum();
-			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).sum();
-
+			for (int j = 0; j < 50; j++) {
+				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).sum();
+				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).sum();
+			}
 			E2_MongoDBManager.getInstance(table2, levels, attributes, writer).size();
 			E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).size();
 
