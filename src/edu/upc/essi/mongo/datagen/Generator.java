@@ -1,6 +1,7 @@
 package edu.upc.essi.mongo.datagen;
 
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.SplittableRandom;

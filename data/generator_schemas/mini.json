@@ -1,0 +1,21 @@
+{
+  "_id": false,
+  "type": "object",
+  "properties": {
+    "a": {
+      "type": "number",
+      "nullProbability": 0,
+      "minimum": -90,
+      "maximum": 90
+    },
+    "name": {
+      "type": "string",
+      "domain": [
+        "Seat",
+        "Ford",
+        "Renault",
+        "Toyota"
+      ]
+    }
+  }
+}
