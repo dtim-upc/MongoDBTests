@@ -6,8 +6,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ValidationOptions;
 import com.opencsv.CSVWriter;
+import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import org.bson.Document;
 
@@ -39,14 +41,13 @@ public class E4_MongoDBManager {
 
 		theDB.createCollection(collection,
 				new CreateCollectionOptions().validationOptions(
-						new ValidationOptions().validator(Document.parse(JSONSchema.toString()))));
+						new ValidationOptions().validator(Filters.jsonSchema(Document.parse(JSONSchema.toString())))));
 	}
 
-	public void insert(String kind) {
+	public void insert() {
 		long startTime = System.nanoTime();
-		theDB.getCollection(collection+kind).insertMany(E3_DocumentSet.getInstance().getByName(kind));
+		theDB.getCollection(collection).insertMany(DocumentSet.getInstance().documents);
 		long elapsedTime = System.nanoTime() - startTime;
-		
 		/*writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_")+1),
 				String.valueOf(1d-Math.pow(2,-probability)), String.valueOf(elapsedTime)	});*/
 	}
