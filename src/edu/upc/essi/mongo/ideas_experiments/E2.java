@@ -88,7 +88,7 @@ public class E2 {
 		}
 	}
 
-	private static JsonObject generateTemplate(int currentLevel, int levels, boolean addSiblings, int attributes) {
+	public static JsonObject generateTemplate(int currentLevel, int levels, boolean addSiblings, int attributes) {
 		JsonObjectBuilder out = Json.createObjectBuilder();
 		if (currentLevel == 1)
 			out.add("_id", JsonValue.TRUE);
