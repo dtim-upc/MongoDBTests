@@ -5,10 +5,7 @@ import com.opencsv.CSVWriter;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
-import edu.upc.essi.mongo.manager.E3_MongoDBManager;
-import edu.upc.essi.mongo.manager.E3_PostgreSQLManager;
-import edu.upc.essi.mongo.manager.E4_MongoDBManager;
-import edu.upc.essi.mongo.manager.JSONSchema;
+import edu.upc.essi.mongo.manager.*;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 
@@ -26,26 +23,49 @@ public class E4 {
 
 	public static void generate(CSVWriter writer) throws Exception {
 		Generator gen = Generator.getInstance();
-		File templateFile = new File("data/generator_schemas/mini.json");
-		JsonObject template = Json.createReader(new StringReader(IOUtils.toString(templateFile.toURI()))).readObject();
-		E4_MongoDBManager.getInstance("test", JSONSchema.generateMongoDB_JSONSchema(template,false), writer);
-		System.out.println(template);
-		System.out.println(JSONSchema.generateMongoDB_JSONSchema(template,false));
-		//JsonObject template = Json.createParser(new StringReader(IOUtils.toString(templateFile.toURI()))).getObject();
-		gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath())
-				.forEach(d -> {
-					System.out.println(d);
-					DocumentSet.getInstance().documents.add(Document.parse(d.toString()));
-				});
-		E4_MongoDBManager.getInstance("test",
-				JSONSchema.generateMongoDB_JSONSchema(template,false), writer).insert();
+
+		// 100i+1 number of attributes
+		for (int i = 0; i <= 15; ++i) {
+			int attributes = 100*i+1;
+			//We reuse e2 template generator
+			JsonObject template = E2.generateTemplate(1, 1, true, attributes);
+			File fileForTemplate = File.createTempFile("template-", ".tmp");
+			fileForTemplate.deleteOnExit();
+			Files.write(fileForTemplate.toPath(), template.toString().getBytes());
+
+			JsonObject mongoDB_JSONSchema = JSONSchema.generateJSONSchema(template,false,true);
+			JsonObject PSQL_JSONSchema = JSONSchema.generateJSONSchema(template,false,false);
+			for (int j = 0; j < 1; ++j) {
+				gen.generateFromPseudoJSONSchema(10, fileForTemplate.getAbsolutePath()).stream()
+						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
+				E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).insert("_JSON_withoutVal");
+				E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).insert("_JSON_withVal");
+				E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).insert("_TUPLE");
+				E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).insert("_JSON_withoutVal");
+				E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).insert("_JSON_withVal");
+				DocumentSet.getInstance().documents.clear();
+			}
+			E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withoutVal");
+			E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withVal");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).sum("_TUPLE");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).sum("_JSON_withoutVal");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).sum("_JSON_withVal");
+
+			E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withoutVal");
+			E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withVal");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).size("_TUPLE");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).size("_JSON_withoutVal");
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).size("_JSON_withVal");
+
+			E4_MongoDBManager.getInstance("e4_"+i, attributes, mongoDB_JSONSchema, writer).destroyme();
+			E4_PostgreSQLManager.getInstance("e4_"+i, attributes, PSQL_JSONSchema, writer).destroyme();
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e4.csv"));
-		/*writer.writeNext(new String[] { "DB", "operation", "storage", "probability",  "runtime (ns)", "size",
-				"compresed" });*/
-//		generate("/root/ideas/schemas/e1_withArrays.json", writer);
+		writer.writeNext(new String[] { "DB", "operation", "storage", "attributes", "runtime (ns)", "size",
+				"compresed" });
 		generate(writer);
 		writer.close();
 	}

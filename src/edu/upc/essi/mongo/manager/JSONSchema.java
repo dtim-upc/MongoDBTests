@@ -10,13 +10,13 @@ public class JSONSchema {
     /**
      * withCheckConstraints indicates value validation (e.g., minimum, maximum or enums)
      */
-    public static JsonObject generateMongoDB_JSONSchema(JsonObject template, boolean withCheckConstraints) {
+    public static JsonObject generateJSONSchema(JsonObject template, boolean withCheckConstraints, boolean isMongoDB) {
         JsonObjectBuilder out = Json.createObjectBuilder();
         if (template.containsKey("type") && template.getString("type").equals("string") &&
                 template.containsKey("domain") && withCheckConstraints) {
             out.add("enum",template.getJsonArray("domain"));
         }
-        else if (template.containsKey("type")) out.add("bsonType",
+        else if (template.containsKey("type") && isMongoDB) out.add("bsonType",
                 template.getString("type").equals("number") ? "int" : template.getString("type"));
         template.keySet().forEach(k -> {
             if (withCheckConstraints && (k.equals("minimum") || k.equals("maximum")))
@@ -35,8 +35,8 @@ public class JSONSchema {
             JsonObjectBuilder properties = Json.createObjectBuilder();
             template.getJsonObject("properties").keySet().forEach(k-> {
                 required.add(k);
-                properties.add(k, generateMongoDB_JSONSchema(
-                        template.getJsonObject("properties").getJsonObject(k), withCheckConstraints));
+                properties.add(k, generateJSONSchema(
+                        template.getJsonObject("properties").getJsonObject(k), withCheckConstraints, isMongoDB));
             });
             out.add("required", required.build());
             out.add("properties", properties.build());
