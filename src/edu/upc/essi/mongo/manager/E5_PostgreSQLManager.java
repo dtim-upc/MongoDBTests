@@ -38,8 +38,8 @@ public class E5_PostgreSQLManager {
 //		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-
 //		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+		
 		JDBC.setAutoCommit(false);
 
 		JDBC.createStatement().execute("CREATE TABLE " + table + "(ID CHAR(24), JSON JSONB)");

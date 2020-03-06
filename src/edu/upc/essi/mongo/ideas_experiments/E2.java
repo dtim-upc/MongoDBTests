@@ -14,9 +14,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.util.StringJoiner;
 
 /**
  * Experiment 2: The goal of this experiment is to evaluate the impact of
@@ -30,8 +34,8 @@ public class E2 {
 
 		Generator gen = Generator.getInstance();
 
-		int attributes = 99;
-		for (int levels : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64, 80, 90, 99)) {
+		for (int levels : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64)) {
+		int attributes = 64;
 
 			JsonObject templateWithSiblings = generateTemplate(1, levels, true, attributes);
 			File fileForTemplateWithSiblings = File.createTempFile("template-", ".tmp");
@@ -45,7 +49,7 @@ public class E2 {
 
 			// Experiment with siblings
 			String table1 = "e2_JSON_withSiblings" + "_" + levels + "levels";
-			for (int i = 0; i < 20; ++i) {
+			for (int j = 0; j < 200; ++j) {
 				gen.generateFromPseudoJSONSchema(50000, fileForTemplateWithSiblings.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).insert();
@@ -54,6 +58,14 @@ public class E2 {
 				DocumentSet.getInstance().documents.clear();
 			}
 			for (int j = 0; j < 50; j++) {
+				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				Process p31 = p21.start();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+				reader.lines().iterator().forEachRemaining(sj::add);
+				String xresult = sj.toString();
+				int retvalx = p31.waitFor();
+				System.out.println(xresult);
 				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).sum();
 				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).sum();
 			}
@@ -66,7 +78,7 @@ public class E2 {
 			gen.resetIndex();
 
 			String table2 = "e2_JSON_withoutSiblings" + "_" + levels + "levels";
-			for (int i = 0; i < 20; ++i) {
+			for (int j = 0; j < 200; ++j) {
 				gen.generateFromPseudoJSONSchema(50000, fileForTemplateWithoutSiblings.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).insert();
@@ -75,6 +87,14 @@ public class E2 {
 				DocumentSet.getInstance().documents.clear();
 			}
 			for (int j = 0; j < 50; j++) {
+				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				Process p31 = p21.start();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+				reader.lines().iterator().forEachRemaining(sj::add);
+				String xresult = sj.toString();
+				int retvalx = p31.waitFor();
+				System.out.println(xresult);
 				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).sum();
 				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).sum();
 			}

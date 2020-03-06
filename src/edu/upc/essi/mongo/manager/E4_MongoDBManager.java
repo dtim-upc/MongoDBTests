@@ -51,7 +51,7 @@ public class E4_MongoDBManager {
 		long startTime = System.nanoTime();
 		theDB.getCollection(collection+kind).insertMany(DocumentSet.getInstance().documents);
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Mongo", "insert", collection+kind,
+		writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_") + 1),
 				String.valueOf(attributes), String.valueOf(elapsedTime)});
 	}
 
@@ -65,13 +65,13 @@ public class E4_MongoDBManager {
 				.first().getInteger("sum");
 		long elapsedTime = System.nanoTime() - startTime;
 		System.out.println(res);
-		writer.writeNext(new String[] { "Mongo", "sum", collection+kind,
+		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_") + 1),
 				String.valueOf(attributes),String.valueOf(elapsedTime)});
 	}
 
 	public void size(String kind) {
 		Document result = theDB.runCommand(new Document("collStats", collection+kind));
-		writer.writeNext(new String[] { "Mongo", "size", collection+kind,
+		writer.writeNext(new String[] { "Mongo", "size", kind.substring(kind.lastIndexOf("_") + 1),
 				String.valueOf(attributes),"", result.get("size").toString(),
 				result.get("storageSize").toString() });
 	}

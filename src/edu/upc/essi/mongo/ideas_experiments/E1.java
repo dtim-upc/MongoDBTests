@@ -5,8 +5,11 @@ import edu.upc.essi.mongo.datagen.Generator;
 import edu.upc.essi.mongo.manager.E1_MongoDBManager;
 import edu.upc.essi.mongo.manager.E1_PostgreSQLManager;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.util.StringJoiner;
 
 import org.bson.Document;
 
@@ -23,8 +26,8 @@ public class E1 {
 
 		Generator gen = Generator.getInstance();
 
-		for (int i = 0; i < 10; ++i) {
-			gen.generateFromPseudoJSONSchema(10, template).stream().map(d -> Document.parse(d.toString()))
+		for (int j = 0; j < 200; ++j) {
+			gen.generateFromPseudoJSONSchema(50000, template).stream().map(d -> Document.parse(d.toString()))
 					.forEach(DocumentSet.getInstance().documents::add);
 
 			E1_MongoDBManager.getInstance("e1", template, writer).insertAsJSONWithArray();
@@ -39,6 +42,14 @@ public class E1 {
 		}
 
 		for (int j = 0; j < 50; j++) {
+			ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+			Process p31 = p21.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+			StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+			reader.lines().iterator().forEachRemaining(sj::add);
+			String xresult = sj.toString();
+			int retvalx = p31.waitFor();
+			System.out.println(xresult);
 			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithAttributes();
 			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithArray();
 			E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithArray();

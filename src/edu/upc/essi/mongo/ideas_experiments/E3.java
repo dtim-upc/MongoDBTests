@@ -15,9 +15,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.util.StringJoiner;
 
 /**
  * Experiment 3: The goal of this experiment is to evaluate the impact of nulls
@@ -54,8 +58,8 @@ public class E3 {
 			JsonObject template = generateTemplate(1d - Math.pow(2, -i));
 			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 			Files.write(templateFile.toPath(), template.toString().getBytes());
-			for (int j = 0; j < 1; ++j) {
-				gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath()).stream()
+			for (int j = 0; j < 200; ++j) {
+				gen.generateFromPseudoJSONSchema(50000, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
 							// get rid of 0s
 							if (d.get("a") != null && d.getInteger("a") == 0) {
@@ -91,6 +95,14 @@ public class E3 {
 			}
 
 			for (int j = 0; j < 50; j++) {
+				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				Process p31 = p21.start();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+				reader.lines().iterator().forEachRemaining(sj::add);
+				String xresult = sj.toString();
+				int retvalx = p31.waitFor();
+				System.out.println(xresult);
 				
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_TEXT");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_NOTHING");
