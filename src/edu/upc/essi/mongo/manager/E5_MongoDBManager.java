@@ -52,8 +52,7 @@ public class E5_MongoDBManager {
 			}
 			path += sb.toString();
 		}
-		path += (nAttributes < 10 ? "00" + String.valueOf(nAttributes)
-				: nAttributes < 100 ? '0' + String.valueOf(nAttributes) : nAttributes);
+		path += (nAttributes < 10 ? '0' + String.valueOf(nAttributes) : nAttributes);
 		Document groupStage = new Document();
 		groupStage.put("_id", null);
 		groupStage.put("sum", new Document("$sum", path));
