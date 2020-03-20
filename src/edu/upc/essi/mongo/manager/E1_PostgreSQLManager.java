@@ -39,6 +39,16 @@ public class E1_PostgreSQLManager {
 		instance = null;
 	}
 
+	public void reconnect() {
+		try {
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public E1_PostgreSQLManager(String table, String schema, CSVWriter writer2) throws Exception {
 		this.table = table;
 		this.schema = schema;
@@ -115,7 +125,7 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sizeJSONWithArray() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_JSON_withArray') );";
+		String sql = " SELECT pg_total_relation_size('" + table + "_JSON_withArray') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
@@ -176,7 +186,7 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sizeJSONWithAttributes() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_JSON_withAttributes') );";
+		String sql = " SELECT pg_total_relation_size('" + table + "_JSON_withAttributes') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
@@ -240,7 +250,7 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sizeTupleWithAttributes() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_TUPLE_withAttributes') );";
+		String sql = " SELECT pg_total_relation_size('" + table + "_TUPLE_withAttributes') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
@@ -293,7 +303,7 @@ public class E1_PostgreSQLManager {
 	}
 
 	public void sizeTupleWithArray() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "_tuple_witharray') );";
+		String sql = " SELECT  pg_total_relation_size('" + table + "_tuple_witharray') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();

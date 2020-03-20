@@ -8,6 +8,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
+import edu.upc.essi.mongo.manager.E4_PostgreSQLManager;
 import edu.upc.essi.mongo.manager.E5_MongoDBManager;
 import edu.upc.essi.mongo.manager.E5_PostgreSQLManager;
 import org.bson.Document;
@@ -40,7 +41,7 @@ public class E5 {
 
 		int attributes = 64;
 
-		for (int attribs : Lists.newArrayList( 32)) {
+		for (int attribs : Lists.newArrayList(1,2, 4, 8, 16, 32, 60)) {
 
 			JsonObject templateWithCount = generateTemplate(attribs, true, attributes);
 			File fileForTemplateWithCount = File.createTempFile("template-", ".tmp");
@@ -55,66 +56,68 @@ public class E5 {
 			// Experiment with number of attributes
 			String table1 = "e5_JSON_attribCount" + "_" + attribs + "_count";
 			for (int j = 0; j < 10; ++j) {
-				gen.generateFromPseudoJSONSchema(100,fileForTemplateWithCount.getAbsolutePath()).stream()
+				gen.generateFromPseudoJSONSchema(100, fileForTemplateWithCount.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).insert();
-				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).insert();
+				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).insert();
 				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).insertTuple();
 
 				DocumentSet.getInstance().documents.clear();
 			}
 			for (int j = 0; j < 20; j++) {
-//				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
-//				Process p31 = p21.start();
-//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-//				reader.lines().iterator().forEachRemaining(sj::add);
-//				String xresult = sj.toString();
-//				int retvalx = p31.waitFor();
-//				System.out.println(xresult);
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+				Process p31 = p21.start();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+				reader.lines().iterator().forEachRemaining(sj::add);
+				String xresult = sj.toString();
+				int retvalx = p31.waitFor();
+				System.out.println(xresult);
+
+				E5_PostgreSQLManager.getInstance(table1, attribs, fixedattibs, writer, false).reconnect();
 				E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).sum(false);
-				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).sum(false);
-			E5_PostgreSQLManager.getInstance(table1, attribs, fixedattibs, writer, false).sumtuple(false);
+				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).sum(false);
+				E5_PostgreSQLManager.getInstance(table1, attribs, fixedattibs, writer, false).sumtuple(false);
 			}
 			E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).size();
-			E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).size();
-			E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).sizetuple();
+			E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).size();
+			E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).sizetuple();
 
 			E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).destroyme();
 			E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).destroyme();
-//
+
 			gen.resetIndex();
 			// Experiment with attribute length
-//			String table2 = "e5_JSON_attribLength" + "_" + attribs + "_length";
-//			for (int j = 0; j < 100; ++j) {
-//				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithLength.getAbsolutePath()).stream()
-//						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
-//				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).insert();
-//				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).insert();
-//				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insertTuple();
-//				DocumentSet.getInstance().documents.clear();
-//			}
-//			for (int j = 0; j < 20; j++) {
-//				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
-//				Process p31 = p21.start();
-//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-//				reader.lines().iterator().forEachRemaining(sj::add);
-//				String xresult = sj.toString();
-//				int retvalx = p31.waitFor();
-//				System.out.println(xresult);
-//				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).sum(true);
-//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sum(true);
-//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sumtuple(true);
-//			}
-//			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).size();
-//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).size();
-//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sizetuple();
-////
-//			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).destroyme();
-//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).destroyme();
-//
-//			gen.resetIndex();
+			String table2 = "e5_JSON_attribLength" + "_" + attribs + "_length";
+			for (int j = 0; j < 10; ++j) {
+				gen.generateFromPseudoJSONSchema(100, fileForTemplateWithLength.getAbsolutePath()).stream()
+						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
+				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).insert();
+				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insert();
+				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insertTuple();
+				DocumentSet.getInstance().documents.clear();
+			}
+			for (int j = 0; j < 20; j++) {
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+				Process p31 = p21.start();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+				reader.lines().iterator().forEachRemaining(sj::add);
+				String xresult = sj.toString();
+				int retvalx = p31.waitFor();
+				System.out.println(xresult);
+				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).reconnect();
+				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).sum(true);
+				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sum(true);
+				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sumtuple(true);
+			}
+			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).size();
+			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).size();
+			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sizetuple();
+			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).destroyme();
+			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).destroyme();
+
+			gen.resetIndex();
 		}
 	}
 
@@ -139,7 +142,7 @@ public class E5 {
 
 			StringBuilder sb = new StringBuilder();
 
-			for (int i = 0; i < attribs; i++) {
+			for (int i = 0; i < attribs - 1; i++) {
 				sb.append("0");
 			}
 

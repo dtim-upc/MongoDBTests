@@ -35,7 +35,7 @@ public class E2 {
 		Generator gen = Generator.getInstance();
 
 		for (int levels : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64)) {
-		int attributes = 64;
+			int attributes = 64;
 
 			JsonObject templateWithSiblings = generateTemplate(1, levels, true, attributes);
 			File fileForTemplateWithSiblings = File.createTempFile("template-", ".tmp");
@@ -58,7 +58,7 @@ public class E2 {
 				DocumentSet.getInstance().documents.clear();
 			}
 			for (int j = 0; j < 20; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
 				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
@@ -66,6 +66,7 @@ public class E2 {
 				String xresult = sj.toString();
 				int retvalx = p31.waitFor();
 				System.out.println(xresult);
+				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).reconnect();
 				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).sum();
 				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).sum();
 			}
@@ -87,7 +88,7 @@ public class E2 {
 				DocumentSet.getInstance().documents.clear();
 			}
 			for (int j = 0; j < 20; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
 				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
@@ -95,6 +96,7 @@ public class E2 {
 				String xresult = sj.toString();
 				int retvalx = p31.waitFor();
 				System.out.println(xresult);
+				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).reconnect();
 				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).sum();
 				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).sum();
 			}

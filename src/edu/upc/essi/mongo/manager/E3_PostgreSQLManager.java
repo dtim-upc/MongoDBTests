@@ -20,6 +20,16 @@ public class E3_PostgreSQLManager {
 			instance = new E3_PostgreSQLManager(table, probability, writer);
 		return instance;
 	}
+	
+	public void reconnect() {
+		try {
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public E3_PostgreSQLManager(String table, float probability, CSVWriter writer2) throws Exception {
 		this.table = table;
@@ -170,8 +180,8 @@ public class E3_PostgreSQLManager {
 	}
 
 	public void size(boolean isJSON, String kind) throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + (isJSON ? "_JSON" : "_TUPLE") + kind
-				+ "') );";
+		String sql = " SELECT  pg_total_relation_size('" + table + (isJSON ? "_JSON" : "_TUPLE") + kind
+				+ "') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();

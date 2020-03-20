@@ -23,6 +23,16 @@ public class E4_PostgreSQLManager {
 			instance = new E4_PostgreSQLManager(table, attributes, JSONSchema, writer);
 		return instance;
 	}
+	
+	public void reconnect() {
+		try {
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public E4_PostgreSQLManager(String table, int attributes, JsonObject JSONSchema, CSVWriter writer2)
 			throws Exception {
@@ -124,7 +134,7 @@ public class E4_PostgreSQLManager {
 	}
 
 	public void size(String kind) throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + kind + "') );";
+		String sql = " SELECT  pg_total_relation_size('" + table + kind + "');";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();

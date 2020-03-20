@@ -95,7 +95,7 @@ public class E3 {
 			}
 
 			for (int j = 0; j < 20; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
 				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
@@ -103,6 +103,7 @@ public class E3 {
 				String xresult = sj.toString();
 				int retvalx = p31.waitFor();
 				System.out.println(xresult);
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
 				
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_TEXT");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_NOTHING");
