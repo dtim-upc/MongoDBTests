@@ -49,15 +49,15 @@ public class E2 {
 
 			// Experiment with siblings
 			String table1 = "e2_JSON_withSiblings" + "_" + levels + "levels";
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000, fileForTemplateWithSiblings.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithSiblings.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E2_MongoDBManager.getInstance(table1, levels, attributes, writer).insert();
 				E2_PostgreSQLManager.getInstance(table1, levels, attributes, writer).insert();
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			for (int j = 0; j < 50; j++) {
+			for (int j = 0; j < 20; j++) {
 				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
@@ -78,15 +78,15 @@ public class E2 {
 			gen.resetIndex();
 
 			String table2 = "e2_JSON_withoutSiblings" + "_" + levels + "levels";
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000, fileForTemplateWithoutSiblings.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithoutSiblings.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E2_MongoDBManager.getInstance(table2, levels, attributes, writer).insert();
 				E2_PostgreSQLManager.getInstance(table2, levels, attributes, writer).insert();
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			for (int j = 0; j < 50; j++) {
+			for (int j = 0; j < 20; j++) {
 				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));

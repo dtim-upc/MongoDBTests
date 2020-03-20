@@ -14,7 +14,8 @@ public class E2_PostgreSQLManager {
 	private int nAttributes;
 	private Connection JDBC;
 
-	public static E2_PostgreSQLManager getInstance(String table, int nLevels, int nAttributes, CSVWriter writer) throws Exception {
+	public static E2_PostgreSQLManager getInstance(String table, int nLevels, int nAttributes, CSVWriter writer)
+			throws Exception {
 		if (instance == null)
 			instance = new E2_PostgreSQLManager(table, nLevels, nAttributes, writer);
 		return instance;
@@ -22,23 +23,28 @@ public class E2_PostgreSQLManager {
 
 	public E2_PostgreSQLManager(String table, int nLevels, int nAttributes, CSVWriter writer2) throws Exception {
 		this.table = table;
-		this.nLevels=nLevels;
-		this.nAttributes=nAttributes;
+		this.nLevels = nLevels;
+		this.nAttributes = nAttributes;
 		this.writer = writer2;
 
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
 
-		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
+//		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 
-//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
-		
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
+
+		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+
 		JDBC.setAutoCommit(false);
 
 		JDBC.createStatement().execute("CREATE TABLE " + table + "(ID CHAR(24), JSON JSONB)");
@@ -63,17 +69,17 @@ public class E2_PostgreSQLManager {
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "insert", table, String.valueOf(nLevels),
-				String.valueOf(nAttributes), String.valueOf(elapsedTime)});
+				String.valueOf(nAttributes), String.valueOf(elapsedTime) });
 	}
 
 	public void sum() throws Exception {
 		String path = "sum((json";
 		for (int i = 1; i < nLevels; ++i) {
-			path += "->'a"+(i<10?'0'+String.valueOf(i):i)+"'";
+			path += "->'a" + (i < 10 ? '0' + String.valueOf(i) : i) + "'";
 		}
-		path += "->>'a"+(nAttributes<10?'0'+String.valueOf(nAttributes):nAttributes) + "'" + ")::int) ";
+		path += "->>'a" + (nAttributes < 10 ? '0' + String.valueOf(nAttributes) : nAttributes) + "'" + ")::int) ";
 
-		String sql = "select "+path+" from " + table;
+		String sql = "select " + path + " from " + table;
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();
@@ -81,8 +87,8 @@ public class E2_PostgreSQLManager {
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { "Postgres", "sum", table, String.valueOf(nLevels),
-				String.valueOf(nAttributes),String.valueOf(elapsedTime) });
+		writer.writeNext(new String[] { "Postgres", "sum", table, String.valueOf(nLevels), String.valueOf(nAttributes),
+				String.valueOf(elapsedTime) });
 	}
 
 	public void size() throws SQLException {

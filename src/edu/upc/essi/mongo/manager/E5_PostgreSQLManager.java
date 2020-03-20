@@ -39,9 +39,14 @@ public class E5_PostgreSQLManager {
 		// Drop and create DB
 
 		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
+//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
 
 //		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
@@ -153,7 +158,7 @@ public class E5_PostgreSQLManager {
 			}
 		}
 
-		sb.append((nAttributes < 10 ?  '0' + String.valueOf(nAttributes) : nAttributes));
+		sb.append((nAttributes < 10 ? '0' + String.valueOf(nAttributes) : nAttributes));
 
 		sb.append(") FROM ").append(table).append("tuple");
 		System.out.println(sb.toString());
@@ -180,7 +185,7 @@ public class E5_PostgreSQLManager {
 	}
 
 	public void sizetuple() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "') );";
+		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "tuple') );";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
@@ -200,8 +205,7 @@ public class E5_PostgreSQLManager {
 		int size = isCount ? nAttributes : 10;
 		if (isCount) {
 			for (int i = size; i > size - attribs; i--) {
-				out += "a"
-						+ (i < 10 ?  '0' + String.valueOf(i) : String.valueOf(i));
+				out += "a" + (i < 10 ? '0' + String.valueOf(i) : String.valueOf(i));
 				if (withTypes) {
 					out += " int";
 				}

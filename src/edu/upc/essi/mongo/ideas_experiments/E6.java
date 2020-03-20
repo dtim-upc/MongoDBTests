@@ -42,8 +42,8 @@ public class E6 {
 
 			JsonObject mongoDB_JSONSchema = JSONSchema.generateJSONSchema(template, true, true);
 			JsonObject PSQL_JSONSchema = JSONSchema.generateJSONSchema(template, true, false);
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000, fileForTemplate.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, fileForTemplate.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer)
 						.insert("_JSON_withoutVal");
@@ -57,8 +57,7 @@ public class E6 {
 				DocumentSet.getInstance().documents.clear();
 			}
 
-			
-			for (int j = 0; j < 50; j++) {
+			for (int j = 0; j < 20; j++) {
 
 				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
 				Process p31 = p21.start();
@@ -68,7 +67,7 @@ public class E6 {
 				String xresult = sj.toString();
 				int retvalx = p31.waitFor();
 				System.out.println(xresult);
-				
+
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer)
 						.sum("_JSON_withoutVal");
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withVal");

@@ -58,8 +58,8 @@ public class E3 {
 			JsonObject template = generateTemplate(1d - Math.pow(2, -i));
 			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 			Files.write(templateFile.toPath(), template.toString().getBytes());
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000, templateFile.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
 							// get rid of 0s
 							if (d.get("a") != null && d.getInteger("a") == 0) {
@@ -94,7 +94,7 @@ public class E3 {
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
 			}
 
-			for (int j = 0; j < 50; j++) {
+			for (int j = 0; j < 20; j++) {
 				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));

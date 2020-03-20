@@ -12,8 +12,13 @@ import java.io.InputStreamReader;
 import java.util.StringJoiner;
 
 import org.bson.Document;
+import org.slf4j.LoggerFactory;
 
 import com.opencsv.CSVWriter;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 
 /**
  * Experiment 1: The goal of this experiment is to evaluate the impact of
@@ -26,8 +31,10 @@ public class E1 {
 
 		Generator gen = Generator.getInstance();
 
-		for (int j = 0; j < 200; ++j) {
-			gen.generateFromPseudoJSONSchema(50000, template).stream().map(d -> Document.parse(d.toString()))
+		System.out.println("Inserting Data");
+		for (int j = 0; j < 100; ++j) {
+			System.out.println("Iteration " + j);
+			gen.generateFromPseudoJSONSchema(10000, template).stream().map(d -> Document.parse(d.toString()))
 					.forEach(DocumentSet.getInstance().documents::add);
 
 			E1_MongoDBManager.getInstance("e1", template, writer).insertAsJSONWithArray();
@@ -41,8 +48,11 @@ public class E1 {
 
 		}
 
-		for (int j = 0; j < 50; j++) {
-			ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+		System.out.println("Insettion Complete \n starting Sum");
+
+		for (int j = 0; j < 20; j++) {
+			System.out.println(j);
+			ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 			Process p31 = p21.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
 			StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
@@ -70,14 +80,18 @@ public class E1 {
 	}
 
 	public static void main(String[] args) throws Exception {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+		rootLogger.setLevel(Level.ERROR);
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e1.csv"));
 		writer.writeNext(
 				new String[] { "DB", "Array size", "operation", "parameter", "runtime (ns)", "size", "compresed" });
 //		generate("/root/ideas/schemas/e1_withArrays.json", writer);
 //		generate("data/generator_schemas/e1_withArrays.json", writer);
 
-		File templateBase = new File("data/generator_schemas/e1_withArrays");
-//		File templateBase = new File("/root/ideas/schemas/e1_withArrays");
+//		File templateBase = new File("data/generator_schemas/e1_withArrays");
+		File templateBase = new File("/root/ideas/schemas/e1_withArrays");
+//		File templateBase = new File("/var/lib/postgresql/MongoDBTests/data/generator_schemas/e1_withArrays");
 
 		for (String template : templateBase.list()) {
 			generate(templateBase + "/" + template, writer);

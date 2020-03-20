@@ -40,7 +40,7 @@ public class E5 {
 
 		int attributes = 64;
 
-		for (int attribs : Lists.newArrayList(1,2, 4, 8, 16, 32, 60)) {
+		for (int attribs : Lists.newArrayList( 32)) {
 
 			JsonObject templateWithCount = generateTemplate(attribs, true, attributes);
 			File fileForTemplateWithCount = File.createTempFile("template-", ".tmp");
@@ -54,8 +54,8 @@ public class E5 {
 
 			// Experiment with number of attributes
 			String table1 = "e5_JSON_attribCount" + "_" + attribs + "_count";
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000,fileForTemplateWithCount.getAbsolutePath()).stream()
+			for (int j = 0; j < 10; ++j) {
+				gen.generateFromPseudoJSONSchema(100,fileForTemplateWithCount.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).insert();
 				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).insert();
@@ -63,15 +63,15 @@ public class E5 {
 
 				DocumentSet.getInstance().documents.clear();
 			}
-			for (int j = 0; j < 50; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/var/lib/postgresql/clear.sh");
-				Process p31 = p21.start();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-				reader.lines().iterator().forEachRemaining(sj::add);
-				String xresult = sj.toString();
-				int retvalx = p31.waitFor();
-				System.out.println(xresult);
+			for (int j = 0; j < 20; j++) {
+//				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+//				Process p31 = p21.start();
+//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+//				reader.lines().iterator().forEachRemaining(sj::add);
+//				String xresult = sj.toString();
+//				int retvalx = p31.waitFor();
+//				System.out.println(xresult);
 				E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).sum(false);
 				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer,true).sum(false);
 			E5_PostgreSQLManager.getInstance(table1, attribs, fixedattibs, writer, false).sumtuple(false);
@@ -85,36 +85,36 @@ public class E5 {
 //
 			gen.resetIndex();
 			// Experiment with attribute length
-			String table2 = "e5_JSON_attribLength" + "_" + attribs + "_length";
-			for (int j = 0; j < 200; ++j) {
-				gen.generateFromPseudoJSONSchema(50000, fileForTemplateWithLength.getAbsolutePath()).stream()
-						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
-				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).insert();
-				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).insert();
-				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insertTuple();
-				DocumentSet.getInstance().documents.clear();
-			}
-			for (int j = 0; j < 50; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/var/lib/postgresql/clear.sh");
-				Process p31 = p21.start();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-				reader.lines().iterator().forEachRemaining(sj::add);
-				String xresult = sj.toString();
-				int retvalx = p31.waitFor();
-				System.out.println(xresult);
-				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).sum(true);
-			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sum(true);
-			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sumtuple(true);
-			}
-			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).size();
-			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).size();
-			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sizetuple();
+//			String table2 = "e5_JSON_attribLength" + "_" + attribs + "_length";
+//			for (int j = 0; j < 100; ++j) {
+//				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithLength.getAbsolutePath()).stream()
+//						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
+//				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).insert();
+//				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).insert();
+//				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insertTuple();
+//				DocumentSet.getInstance().documents.clear();
+//			}
+//			for (int j = 0; j < 20; j++) {
+//				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+//				Process p31 = p21.start();
+//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+//				reader.lines().iterator().forEachRemaining(sj::add);
+//				String xresult = sj.toString();
+//				int retvalx = p31.waitFor();
+//				System.out.println(xresult);
+//				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).sum(true);
+//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sum(true);
+//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sumtuple(true);
+//			}
+//			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).size();
+//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).size();
+//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).sizetuple();
+////
+//			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).destroyme();
+//			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).destroyme();
 //
-			E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).destroyme();
-			E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer,false).destroyme();
-
-			gen.resetIndex();
+//			gen.resetIndex();
 		}
 	}
 

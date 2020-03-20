@@ -49,15 +49,20 @@ public class E1_PostgreSQLManager {
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
 
-		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
-
-//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
+//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
+
+		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 
 		JDBC.setAutoCommit(false);
 
@@ -88,6 +93,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "JSONWithArray",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres JSON Array " + size);
 	}
 
 	public void sumJSONWithArray() throws SQLException {
@@ -105,6 +111,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(
 				new String[] { "Postgres", String.valueOf(size), "sum", "JSONWithArray", String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres JSON Array Sum " + size);
 	}
 
 	public void sizeJSONWithArray() throws SQLException {
@@ -115,6 +122,7 @@ public class E1_PostgreSQLManager {
 		rs.next();
 		writer.writeNext(
 				new String[] { "Postgres", String.valueOf(size), "size", "JSONWithArray", "", rs.getString(1) });
+		
 	}
 
 	public void insertAsJSONWithAttributes() throws SQLException {
@@ -137,6 +145,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "JSONWithAttributes",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres JSON Attribute " + size);
 	}
 
 	public void sumJSONWithAttributes() throws Exception {
@@ -163,7 +172,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "JSONWithAttributes",
 				String.valueOf(elapsedTime) });
-
+		System.out.println(elapsedTime+"Postgres JSON Attribute sum " + size);
 	}
 
 	public void sizeJSONWithAttributes() throws SQLException {
@@ -201,6 +210,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "TupleWithAttributes",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres Tuple Attribute " + size);
 	}
 
 	public void sumTupleWithAttributes() throws Exception {
@@ -226,6 +236,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "TupleWithAttributes",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres Tuple Attribute Sum " + size);
 	}
 
 	public void sizeTupleWithAttributes() throws SQLException {
@@ -263,6 +274,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "insert", "TupleWithArray",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres Tuple Array " + size);
 	}
 
 	public void sumTupleWithArray() throws SQLException {
@@ -277,6 +289,7 @@ public class E1_PostgreSQLManager {
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", String.valueOf(size), "sum", "TupleWithArray",
 				String.valueOf(elapsedTime) });
+		System.out.println(elapsedTime+"Postgres Tuple Array Sum " + size);
 	}
 
 	public void sizeTupleWithArray() throws SQLException {
