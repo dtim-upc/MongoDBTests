@@ -154,15 +154,17 @@ public class E3 {
 		out.add("_id", JsonValue.TRUE);
 		out.add("type", "object");
 		JsonObjectBuilder properties = Json.createObjectBuilder();
-		JsonObjectBuilder A = Json.createObjectBuilder();
-		A.add("type", "number");
-		A.add("nullProbability", probability);
-		A.add("minimum", -10);
-		A.add("maximum", 10);
+		for (int i=0; i < 64; ++i) {
+			JsonObjectBuilder A = Json.createObjectBuilder();
+			A.add("type", "number");
+			A.add("nullProbability", probability);
+			A.add("minimum", -10);
+			A.add("maximum", 10);
+			properties.add("a" + (i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)), A);
+		}
 		JsonObjectBuilder B = Json.createObjectBuilder();
 		B.add("type", "string");
-		B.add("size", 10);
-		properties.add("a", A);
+		B.add("size", 64);
 		properties.add("b", B);
 		out.add("properties", properties);
 		return out.build();

@@ -32,7 +32,8 @@ public class E4 {
 //		for (int i = 0; i <= 7; ++i) {
 //		int attributes = 100 * i + 1;
 		for (int i : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64, 128, 256)) {
-			int attributes = i;
+			int attributes = 64;
+			int attributesWithValidation = i;
 
 			// We reuse e2 template generator
 			JsonObject template = E2.generateTemplate(1, 1, true, attributes);
@@ -40,8 +41,8 @@ public class E4 {
 			fileForTemplate.deleteOnExit();
 			Files.write(fileForTemplate.toPath(), template.toString().getBytes());
 
-			JsonObject mongoDB_JSONSchema = JSONSchema.generateJSONSchema(template, false, true);
-			JsonObject PSQL_JSONSchema = JSONSchema.generateJSONSchema(template, false, false);
+			JsonObject mongoDB_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, true, attributesWithValidation);
+			JsonObject PSQL_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, false, attributesWithValidation);
 			for (int j = 0; j < 100; ++j) {
 				gen.generateFromPseudoJSONSchema(10000, fileForTemplate.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
