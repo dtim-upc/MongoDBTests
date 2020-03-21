@@ -60,6 +60,7 @@ public class E1 {
 			String xresult = sj.toString();
 			int retvalx = p31.waitFor();
 			System.out.println(xresult);
+			E1_PostgreSQLManager.getInstance("e1", template, writer).reconnect();
 			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithAttributes();
 			E1_MongoDBManager.getInstance("e1", template, writer).sumJSONWithArray();
 			E1_PostgreSQLManager.getInstance("e1", template, writer).sumTupleWithArray();

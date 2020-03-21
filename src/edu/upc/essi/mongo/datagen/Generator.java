@@ -21,8 +21,9 @@ public class Generator {
 
 	// private constructor restricted to this class itself
 	private Generator() {
-		list64m = CSVUtils.fillIds("data/80-2m");
-//		list64m = CSVUtils.fillIds("/root/ideas/ids/80-2m");
+//		list64m = CSVUtils.fillIds("data/80-2m");
+		list64m = CSVUtils.fillIds("/root/ideas/ids/80-2m");
+//		list64m = CSVUtils.fillIds("/var/lib/postgresql/80-64m");
 		idIndex = 0;
 		System.out.println("Ids loaded");
 	}

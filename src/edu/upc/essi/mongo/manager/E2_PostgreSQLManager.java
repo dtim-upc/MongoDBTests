@@ -21,6 +21,16 @@ public class E2_PostgreSQLManager {
 		return instance;
 	}
 
+	public void reconnect() {
+		try {
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public E2_PostgreSQLManager(String table, int nLevels, int nAttributes, CSVWriter writer2) throws Exception {
 		this.table = table;
 		this.nLevels = nLevels;
@@ -44,7 +54,7 @@ public class E2_PostgreSQLManager {
 				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
 		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
-
+//
 		JDBC.setAutoCommit(false);
 
 		JDBC.createStatement().execute("CREATE TABLE " + table + "(ID CHAR(24), JSON JSONB)");
@@ -92,7 +102,7 @@ public class E2_PostgreSQLManager {
 	}
 
 	public void size() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "') );";
+		String sql = " SELECT  pg_total_relation_size('" + table + "') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();

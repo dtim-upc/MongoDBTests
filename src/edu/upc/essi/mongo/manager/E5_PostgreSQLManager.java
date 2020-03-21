@@ -26,6 +26,16 @@ public class E5_PostgreSQLManager {
 			instance = new E5_PostgreSQLManager(table, nLevels, nAttributes, writer, iscnt);
 		return instance;
 	}
+	
+	public void reconnect() {
+		try {
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public E5_PostgreSQLManager(String table, int nLevels, int nAttributes, CSVWriter writer2, boolean iscnt)
 			throws Exception {
@@ -38,20 +48,20 @@ public class E5_PostgreSQLManager {
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
 
-		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
+//		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 
 //		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
 //		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
 
-//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
-//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 
 		JDBC.setAutoCommit(false);
 
@@ -175,7 +185,7 @@ JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiment
 	}
 
 	public void size() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "') );";
+		String sql = " SELECT ( pg_total_relation_size('" + table + "') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
@@ -185,7 +195,7 @@ JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiment
 	}
 
 	public void sizetuple() throws SQLException {
-		String sql = " SELECT pg_size_pretty( pg_total_relation_size('" + table + "tuple') );";
+		String sql = " SELECT  pg_total_relation_size('" + table + "tuple') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();

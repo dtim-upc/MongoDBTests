@@ -6,6 +6,7 @@ import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
 import edu.upc.essi.mongo.manager.E4_MongoDBManager;
 import edu.upc.essi.mongo.manager.E4_PostgreSQLManager;
+import edu.upc.essi.mongo.manager.E5_PostgreSQLManager;
 import edu.upc.essi.mongo.manager.E6_PostgreSQLManager;
 import edu.upc.essi.mongo.manager.JSONSchema;
 import org.bson.Document;
@@ -41,8 +42,10 @@ public class E6 {
 			fileForTemplate.deleteOnExit();
 			Files.write(fileForTemplate.toPath(), template.toString().getBytes());
 
-			JsonObject mongoDB_JSONSchema = JSONSchema.generate_e6_JSONSchema(template, true, true, attributesWithValidation);
-			JsonObject PSQL_JSONSchema = JSONSchema.generate_e6_JSONSchema(template, true, false, attributesWithValidation);
+			JsonObject mongoDB_JSONSchema = JSONSchema.generate_e6_JSONSchema(template, true, true,
+					attributesWithValidation);
+			JsonObject PSQL_JSONSchema = JSONSchema.generate_e6_JSONSchema(template, true, false,
+					attributesWithValidation);
 			for (int j = 0; j < 100; ++j) {
 				gen.generateFromPseudoJSONSchema(10000, fileForTemplate.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
@@ -60,7 +63,7 @@ public class E6 {
 
 			for (int j = 0; j < 20; j++) {
 
-				ProcessBuilder p21 = new ProcessBuilder("/root/mongo/distrib/clear.sh");
+				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 				Process p31 = p21.start();
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
 				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
@@ -69,6 +72,7 @@ public class E6 {
 				int retvalx = p31.waitFor();
 				System.out.println(xresult);
 
+				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).reconnect();
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer)
 						.sum("_JSON_withoutVal");
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withVal");
