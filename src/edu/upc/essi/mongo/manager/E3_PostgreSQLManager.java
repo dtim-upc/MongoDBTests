@@ -60,9 +60,9 @@ public class E3_PostgreSQLManager {
 		JDBC.createStatement().execute("CREATE TABLE " + table + "_JSON_NULLS_ARE_ZERO (ID CHAR(24), JSON JSONB)");
 
 		JDBC.createStatement()
-				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_TEXT (ID CHAR(24), a INT, b VARCHAR(10))");
+				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_TEXT (ID CHAR(24), a INT, b VARCHAR(64))");
 		JDBC.createStatement()
-				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_ZERO (ID CHAR(24), a INT, b VARCHAR(10))");
+				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_ZERO (ID CHAR(24), a INT, b VARCHAR(64))");
 
 		JDBC.commit();
 	}

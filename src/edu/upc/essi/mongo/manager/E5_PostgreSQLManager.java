@@ -185,7 +185,7 @@ public class E5_PostgreSQLManager {
 	}
 
 	public void size() throws SQLException {
-		String sql = " SELECT ( pg_total_relation_size('" + table + "') ;";
+		String sql = " SELECT  pg_total_relation_size('" + table + "') ;";
 		System.out.println(sql);
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
