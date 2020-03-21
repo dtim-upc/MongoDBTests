@@ -63,13 +63,15 @@ public class E6_PostgreSQLManager {
 				.execute("CREATE TABLE " + table + "_TUPLE (ID CHAR(24)," + JSONSchema.getJsonArray("required").stream()
 						.map(t -> t.toString() + " int").collect(Collectors.joining(",")) + ")");
 		JSONSchema.getJsonObject("properties").keySet().forEach(k -> {
-			int min = JSONSchema.getJsonObject("properties").getJsonObject(k).getInt("minimum");
-			int max = JSONSchema.getJsonObject("properties").getJsonObject(k).getInt("maximum");
-			try {
-				JDBC.createStatement().execute("ALTER TABLE " + table + "_TUPLE ADD CONSTRAINT validate" + k
-						+ " CHECK (" + k + " BETWEEN " + min + " AND " + max + ")");
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (JSONSchema.getJsonObject("properties").getJsonObject(k).containsKey("minimum")) {
+				int min = JSONSchema.getJsonObject("properties").getJsonObject(k).getInt("minimum");
+				int max = JSONSchema.getJsonObject("properties").getJsonObject(k).getInt("maximum");
+				try {
+					JDBC.createStatement().execute("ALTER TABLE " + table + "_TUPLE ADD CONSTRAINT validate" + k
+							+ " CHECK (" + k + " BETWEEN " + min + " AND " + max + ")");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 
