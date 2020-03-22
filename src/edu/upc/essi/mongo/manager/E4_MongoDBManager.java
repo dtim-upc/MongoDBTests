@@ -14,6 +14,10 @@ import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import org.bson.Document;
 
 import javax.json.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class E4_MongoDBManager {
 
@@ -55,16 +59,25 @@ public class E4_MongoDBManager {
 				String.valueOf(attributes), String.valueOf(elapsedTime)});
 	}
 
-	public void sum(String kind) {
+	public void sumJSONWithAttributes(String kind) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		List<String> mongoAtts = attribs.stream().map(a -> "$" + a).collect(Collectors.toList());
+
 		Document groupStage = new Document();
 		groupStage.put("_id", null);
-		groupStage.put("sum", new Document("$sum", "$a01"));
+		groupStage.put("totalsum", new Document("$sum", "$localsum"));
 		long startTime = System.nanoTime();
 		int res = theDB.getCollection(collection+kind)
-				.aggregate(Lists.newArrayList(new Document("$group", groupStage)))
-				.first().getInteger("sum");
-		long elapsedTime = System.nanoTime() - startTime;
+				.aggregate(Lists.newArrayList(
+						new Document("$project", new Document("localsum", new Document("$sum", mongoAtts))),
+						new Document("$group", groupStage)))
+				.first().getInteger("totalsum");
+
+//		System.out.println("MongoDB sumJSONWithAttributes");
 		System.out.println(res);
+		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_") + 1),
 				String.valueOf(attributes),String.valueOf(elapsedTime)});
 	}

@@ -1,12 +1,15 @@
 package edu.upc.essi.mongo.manager;
 
+import com.google.common.collect.Lists;
 import com.opencsv.CSVWriter;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import org.bson.Document;
 
 import javax.json.JsonObject;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class E6_PostgreSQLManager {
 
@@ -105,7 +108,7 @@ public class E6_PostgreSQLManager {
 		} else {
 			DocumentSet.getInstance().documents.stream()
 					.map(d -> "INSERT INTO " + table + kind + " (ID," + d.keySet().stream()
-							.filter(k -> !k.equals("_id")).sorted().collect(Collectors.joining(",")) + ") VALUES ('"
+							.filter(k -> !k.equals("_id")).sorted().map(k->"\""+k+"\"").collect(Collectors.joining(",")) + ") VALUES ('"
 							+ d.get("_id") + "',"
 							+ d.keySet().stream().filter(k -> !k.equals("_id")).sorted()
 									.map(k -> String.valueOf(d.getInteger(k))).collect(Collectors.joining(","))
@@ -127,15 +130,50 @@ public class E6_PostgreSQLManager {
 				table.substring(table.lastIndexOf("_" + 1)), String.valueOf(elapsedTime) });
 	}
 
-	public void sum(String kind) throws Exception {
-		String sql = "";
-		if (kind.contains("JSON")) {
-			String expr = "sum((json->>'a01')::int)";
-			sql = "select " + expr + " from " + table + kind;
-		} else {
-			sql = "select sum(a01) from " + table + kind;
+	public void sumTuple(String kind) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		StringBuilder sb = new StringBuilder("SELECT  SUM(");
+		for (String string : attribs) {
+			sb.append(string + "+");
 		}
-		PreparedStatement stmt = JDBC.prepareStatement(sql);
+		// remove the trailing +
+		if (sb.length() > 0)
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append(") FROM ").append(table + "_TUPLE");
+		System.out.println(sb.toString());
+
+		PreparedStatement stmt = JDBC.prepareStatement(sb.toString());
+
+		long startTime = System.nanoTime();
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		System.out.println(rs.getInt(1));
+		long elapsedTime = System.nanoTime() - startTime;
+		writer.writeNext(new String[] { "Postgres", "sum", kind.substring(kind.lastIndexOf("_") + 1),
+				table.substring(table.lastIndexOf("_" + 1)), String.valueOf(elapsedTime) });
+	}
+
+	public void sumJSON(String kind) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		StringBuilder sb = new StringBuilder("SELECT  SUM(");
+
+		for (String string : attribs) {
+			sb.append("(\"json\"->>'").append(string).append("')::int+");
+		}
+
+		if (sb.length() > 0)
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append(") FROM ").append(table + kind);
+		System.out.println(sb.toString());
+
+		PreparedStatement stmt = JDBC.prepareStatement(sb.toString());
+
 		long startTime = System.nanoTime();
 		ResultSet rs = stmt.executeQuery();
 		rs.next();

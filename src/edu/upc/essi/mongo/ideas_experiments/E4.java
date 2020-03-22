@@ -31,7 +31,7 @@ public class E4 {
 		// 100i+1 number of attributes
 //		for (int i = 0; i <= 7; ++i) {
 //		int attributes = 100 * i + 1;
-		for (int i : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64, 128, 256)) {
+		for (int i : Lists.newArrayList(1, 2, 4, 8, 16, 32, 64)) {
 			int attributes = 64;
 			int attributesWithValidation = i;
 
@@ -68,12 +68,12 @@ public class E4 {
 				System.out.println(xresult);
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).reconnect();
 				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer)
-						.sum("_JSON_withoutVal");
-				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withVal");
-				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sum("_TUPLE");
+						.sumJSONWithAttributes("_JSON_withoutVal");
+				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).sumJSONWithAttributes("_JSON_withVal");
+				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sumTuple("_TUPLE");
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer)
-						.sum("_JSON_withoutVal");
-				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sum("_JSON_withVal");
+						.sumJSON("_JSON_withoutVal");
+				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sumJSON("_JSON_withVal");
 
 				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer)
 						.size("_JSON_withoutVal");

@@ -74,12 +74,12 @@ public class E6 {
 
 				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).reconnect();
 				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer)
-						.sum("_JSON_withoutVal");
-				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer).sum("_JSON_withVal");
-				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).sum("_TUPLE");
+						.sumJSONWithAttributes("_JSON_withoutVal");
+				E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer).sumJSONWithAttributes("_JSON_withVal");
+				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).sumTuple("_TUPLE");
 				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer)
-						.sum("_JSON_withoutVal");
-				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).sum("_JSON_withVal");
+						.sumJSON("_JSON_withoutVal");
+				E6_PostgreSQLManager.getInstance("e6_" + i, attributes, PSQL_JSONSchema, writer).sumJSON("_JSON_withVal");
 
 			}
 			E4_MongoDBManager.getInstance("e6_" + i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withoutVal");
