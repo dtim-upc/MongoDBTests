@@ -61,23 +61,25 @@ public class E3 {
 			for (int j = 0; j < 100; ++j) {
 				gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
-							// get rid of 0s
-							if (d.get("a") != null && d.getInteger("a") == 0) {
-								d.remove("a");
-								d.put("a", 1);
-							}
-							E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d);
-
+							Document d1 = Document.parse(d.toJson());
 							Document d2 = Document.parse(d.toJson());
-							if (d2.get("a") == null)
-								d2.remove("a");
-							E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
-
 							Document d3 = Document.parse(d.toJson());
-							if (d3.get("a") == null) {
-								d3.remove("a");
-								d3.put("a", 0);
-							}
+
+							d.keySet().forEach(k -> {
+								if (!k.equals("_id") && !k.equals("b")) {
+									// get rid of 0s for D1
+									if (d.get(k) != null && d.getInteger(k) == 0) {
+										d1.remove(k);
+										d1.put(k, 1);
+									}
+									if (d.get(k) == null) {
+										d2.remove(k);
+										d3.remove(k); d3.put(k,0);
+									}
+								}
+							});
+							E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d1);
+							E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
 							E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.add(d3);
 						});
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_TEXT");
