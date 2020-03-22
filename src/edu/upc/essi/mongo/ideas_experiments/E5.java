@@ -55,8 +55,8 @@ public class E5 {
 
 			// Experiment with number of attributes
 			String table1 = "e5_JSON_attribCount" + "_" + attribs + "_count";
-			for (int j = 0; j < 10; ++j) {
-				gen.generateFromPseudoJSONSchema(100, fileForTemplateWithCount.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithCount.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E5_MongoDBManager.getInstance(table1, attribs, attributes, writer).insert();
 				E5_PostgreSQLManager.getInstance(table1, attribs, attributes, writer, true).insert();
@@ -89,8 +89,8 @@ public class E5 {
 			gen.resetIndex();
 			// Experiment with attribute length
 			String table2 = "e5_JSON_attribLength" + "_" + attribs + "_length";
-			for (int j = 0; j < 10; ++j) {
-				gen.generateFromPseudoJSONSchema(100, fileForTemplateWithLength.getAbsolutePath()).stream()
+			for (int j = 0; j < 100; ++j) {
+				gen.generateFromPseudoJSONSchema(10000, fileForTemplateWithLength.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
 				E5_MongoDBManager.getInstance(table2, attribs, fixedattibs, writer).insert();
 				E5_PostgreSQLManager.getInstance(table2, attribs, fixedattibs, writer, false).insert();
