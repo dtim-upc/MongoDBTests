@@ -112,7 +112,7 @@ public class E4_PostgreSQLManager {
 		JDBC.commit();
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "insert", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes), String.valueOf(elapsedTime) });
+				table.substring(table.lastIndexOf("_" + 1)), String.valueOf(elapsedTime) });
 	}
 
 	public void sum(String kind) throws Exception {
@@ -130,7 +130,7 @@ public class E4_PostgreSQLManager {
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Postgres", "sum", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes), String.valueOf(elapsedTime) });
+				table.substring(table.lastIndexOf("_" + 1)), String.valueOf(elapsedTime) });
 	}
 
 	public void size(String kind) throws SQLException {
@@ -140,7 +140,7 @@ public class E4_PostgreSQLManager {
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
 		writer.writeNext(new String[] { "Postgres", "size", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes), "", rs.getString(1) });
+				table.substring(table.lastIndexOf("_" + 1)), "", rs.getString(1) });
 	}
 
 	public void destroyme() {
