@@ -56,7 +56,7 @@ public class E4_MongoDBManager {
 		theDB.getCollection(collection+kind).insertMany(DocumentSet.getInstance().documents);
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes), String.valueOf(elapsedTime)});
+				collection, String.valueOf(elapsedTime)});
 	}
 
 	public void sumJSONWithAttributes(String kind) throws Exception {
@@ -79,13 +79,13 @@ public class E4_MongoDBManager {
 		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes),String.valueOf(elapsedTime)});
+				collection,String.valueOf(elapsedTime)});
 	}
 
 	public void size(String kind) {
 		Document result = theDB.runCommand(new Document("collStats", collection+kind));
 		writer.writeNext(new String[] { "Mongo", "size", kind.substring(kind.lastIndexOf("_") + 1),
-				String.valueOf(attributes),"", result.get("size").toString(),
+				collection,"", result.get("size").toString(),
 				result.get("storageSize").toString() });
 	}
 
