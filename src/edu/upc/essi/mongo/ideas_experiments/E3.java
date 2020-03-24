@@ -54,12 +54,12 @@ public class E3 {
 		 * 0.015625, 0.0078125, 0.00390625, 0.001953125, 9.765625E-4, 4.8828125E-4,
 		 * 2.4414062E-4, 1.2207031E-4, 6.1035156E-5
 		 */
-		for (int i = 0; i < 15; ++i) {
+		for (int i = 1; i < 15; ++i) {
 			JsonObject template = generateTemplate(1d - Math.pow(2, -i));
 			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 			Files.write(templateFile.toPath(), template.toString().getBytes());
 			for (int j = 0; j < 100; ++j) {
-				gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
+				gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
 							Document d1 = Document.parse(d.toJson());
 							Document d2 = Document.parse(d.toJson());
@@ -107,14 +107,14 @@ public class E3 {
 				System.out.println(xresult);
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
 				
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_TEXT");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_NOTHING");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sum("_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sum(true, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sum(true, "_NULLS_ARE_NOTHING");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sum(true, "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sum(false, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sum(false, "_NULLS_ARE_ZERO");
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_TEXT");
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_NOTHING");
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_ZERO");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_TEXT");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_NOTHING");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_ZERO");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple( "_NULLS_ARE_TEXT", true);
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple( "_NULLS_ARE_ZERO", false);
 
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_TEXT");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_NOTHING");
@@ -157,7 +157,7 @@ public class E3 {
 		out.add("_id", JsonValue.TRUE);
 		out.add("type", "object");
 		JsonObjectBuilder properties = Json.createObjectBuilder();
-		for (int i=0; i < 64; ++i) {
+		for (int i=1; i <= 64; ++i) {
 			JsonObjectBuilder A = Json.createObjectBuilder();
 			A.add("type", "number");
 			A.add("nullProbability", probability);

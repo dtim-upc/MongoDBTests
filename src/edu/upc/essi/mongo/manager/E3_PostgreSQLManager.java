@@ -1,11 +1,15 @@
 package edu.upc.essi.mongo.manager;
 
+import com.google.common.collect.Lists;
 import com.opencsv.CSVWriter;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import org.bson.Document;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class E3_PostgreSQLManager {
 
@@ -41,7 +45,7 @@ public class E3_PostgreSQLManager {
 //		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
 //		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 
 //		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
@@ -51,7 +55,7 @@ public class E3_PostgreSQLManager {
 		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
 				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+	JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 
 		JDBC.setAutoCommit(false);
 
@@ -60,9 +64,15 @@ public class E3_PostgreSQLManager {
 		JDBC.createStatement().execute("CREATE TABLE " + table + "_JSON_NULLS_ARE_ZERO (ID CHAR(24), JSON JSONB)");
 
 		JDBC.createStatement()
-				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_TEXT (ID CHAR(24), a INT, b VARCHAR(64))");
+				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_TEXT (ID CHAR(24), "
+						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " int")
+								.sorted().collect(Collectors.joining(","))
+						+", b VARCHAR(64))");
 		JDBC.createStatement()
-				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_ZERO (ID CHAR(24), a INT, b VARCHAR(64))");
+				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_ZERO (ID CHAR(24), "
+						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " int")
+						.sorted().collect(Collectors.joining(","))
+						+", b VARCHAR(64))");
 
 		JDBC.commit();
 	}
@@ -83,14 +93,13 @@ public class E3_PostgreSQLManager {
 				}
 			});
 		} else {
-			E3_DocumentSet.getInstance().getByName(kind).stream().map(d -> {
-				Document copy = Document.parse(d.toJson());
-				String k = copy.remove("_id").toString();
-				Object a = copy.get("a");
-				String b = copy.getString("b");
-				return "INSERT INTO " + table + "_TUPLE" + kind + "(ID,a,b) VALUES ('" + k + "'," + a + ", '" + b
-						+ "')";
-			}).forEach(s -> {
+			E3_DocumentSet.getInstance().getByName(kind).stream().map(d ->
+				"INSERT INTO " + table + "_TUPLE" + kind + "(ID,"+
+						d.keySet().stream().filter(t->!t.equals("_id")).sorted().collect(Collectors.joining(","))
+						+") VALUES ('" + d.getString("_id") + "',"
+						+ d.keySet().stream().filter(t->!t.equals("_id")).sorted().map(k->d.get(k) == null ? "null" : "'"+d.get(k).toString()+"'").collect(Collectors.joining(","))
+						+ ")"
+			).forEach(s -> {
 				try {
 					statement.addBatch(s);
 				} catch (SQLException exc) {
@@ -107,21 +116,60 @@ public class E3_PostgreSQLManager {
 				String.valueOf(elapsedTime) });
 	}
 
-	public void sum(boolean isJSON, String kind) throws Exception {
-		String sql = "";
-		if (isJSON) {
-			String expr = "sum((json->>'a')::int)";
-			sql = "select " + expr + " from " + table + "_JSON" + kind;
-		} else {
-			sql = "select sum(a) from " + table + "_TUPLE" + kind;
+	public void sumTuple(String kind, boolean nullIsText) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		StringBuilder sb = new StringBuilder("SELECT  SUM(");
+		for (String string : attribs) {
+			if (nullIsText)	sb.append("case when ").append(string).append(" is null then 0 else ").append(string).append(" end +");
+			else sb.append(string).append(" +");
 		}
-		PreparedStatement stmt = JDBC.prepareStatement(sql);
+
+		// remove the trailing +
+		if (sb.length() > 0)
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append(") FROM ").append(table + "_tuple" + kind);
+		System.out.println(sb.toString());
+
+		PreparedStatement stmt = JDBC.prepareStatement(sb.toString());
+
 		long startTime = System.nanoTime();
 		ResultSet rs = stmt.executeQuery();
 		rs.next();
 		System.out.println(rs.getInt(1));
 		long elapsedTime = System.nanoTime() - startTime;
-		writer.writeNext(new String[] { isJSON ? "Postgres_JSON" : "Postgres_TUPLE", "sum",
+		writer.writeNext(new String[] { "Postgres_TUPLE", "sum",
+				kind.substring(kind.lastIndexOf("_") + 1), String.valueOf(1d - Math.pow(2, -probability)),
+				String.valueOf(elapsedTime) });
+	}
+
+	public void sumJSON(String kind) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		StringBuilder sb = new StringBuilder("SELECT  SUM(");
+
+		for (String string : attribs) {
+			sb.append("case when ").append("(\"json\"->>'").append(string).append("') is null then 0 else ")
+					.append("(\"json\"->>'").append(string).append("')::int end +");
+		}
+
+		if (sb.length() > 0)
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append(") FROM ").append(table + "_json" + kind);
+		System.out.println(sb.toString());
+
+		PreparedStatement stmt = JDBC.prepareStatement(sb.toString());
+
+		long startTime = System.nanoTime();
+		ResultSet rs = stmt.executeQuery();
+		rs.next();
+		System.out.println(rs.getInt(1));
+		long elapsedTime = System.nanoTime() - startTime;
+		writer.writeNext(new String[] { "Postgres_JSON", "sum",
 				kind.substring(kind.lastIndexOf("_") + 1), String.valueOf(1d - Math.pow(2, -probability)),
 				String.valueOf(elapsedTime) });
 	}
@@ -131,15 +179,15 @@ public class E3_PostgreSQLManager {
 		if (isJSON) {
 			String expr;
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING"))
-				expr = "json->>'a' is null";
+				expr = "json->>'a01' is null";
 			else
-				expr = "(json->>'a')::int = 0";
+				expr = "(json->>'a01')::int = 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where " + expr;
 		} else {
 			if (kind.equals("_NULLS_ARE_TEXT"))
-				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a is null";
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a01 is null";
 			else if (kind.equals("_NULLS_ARE_ZERO"))
-				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a=0";
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a01=0";
 		}
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();
@@ -158,15 +206,15 @@ public class E3_PostgreSQLManager {
 		if (isJSON) {
 			String expr;
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING"))
-				expr = "json->>'a' is not null";
+				expr = "json->>'a01' is not null";
 			else
-				expr = "(json->>'a')::int <> 0";
+				expr = "(json->>'a01')::int <> 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where " + expr;
 		} else {
 			if (kind.equals("_NULLS_ARE_TEXT"))
-				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a is not null";
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a01 is not null";
 			else if (kind.equals("_NULLS_ARE_ZERO"))
-				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a<>0";
+				sql = "select count(*) from " + table + "_TUPLE" + kind + " where a01<>0";
 		}
 		PreparedStatement stmt = JDBC.prepareStatement(sql);
 		long startTime = System.nanoTime();

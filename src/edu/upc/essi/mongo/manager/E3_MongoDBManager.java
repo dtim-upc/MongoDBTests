@@ -10,6 +10,11 @@ import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public class E3_MongoDBManager {
 
 	private static E3_MongoDBManager instance = null;
@@ -44,17 +49,25 @@ public class E3_MongoDBManager {
 				String.valueOf(1d-Math.pow(2,-probability)), String.valueOf(elapsedTime)	});
 	}
 
-	public void sum(String kind) {
+	public void sumJSONWithAttributes(String kind) throws Exception {
+		ArrayList<String> attribs = Lists.newArrayList(
+				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+						.sorted().collect(Collectors.toList()));
+		List<String> mongoAtts = attribs.stream().map(a -> "$" + a).collect(Collectors.toList());
+
 		Document groupStage = new Document();
 		groupStage.put("_id", null);
-		groupStage.put("sum", new Document("$sum", "$a"));
+		groupStage.put("totalsum", new Document("$sum", "$localsum"));
 		long startTime = System.nanoTime();
 		int res = theDB.getCollection(collection+kind)
-				.aggregate(Lists.newArrayList(new Document("$group", groupStage)))
-				.first().getInteger("sum");
-		long elapsedTime = System.nanoTime() - startTime;
-		System.out.println(res);
+				.aggregate(Lists.newArrayList(
+						new Document("$project", new Document("localsum", new Document("$sum", mongoAtts))),
+						new Document("$group", groupStage)))
+				.first().getInteger("totalsum");
 
+//		System.out.println("MongoDB sumJSONWithAttributes");
+		System.out.println(res);
+		long elapsedTime = System.nanoTime() - startTime;
 		writer.writeNext(new String[] { "Mongo", "sum", kind.substring(kind.lastIndexOf("_")+1),
 				String.valueOf(1d-Math.pow(2,-probability)),String.valueOf(elapsedTime)});
 	}
@@ -64,25 +77,25 @@ public class E3_MongoDBManager {
 		if (kind.contains("_NULLS_ARE_TEXT")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res = theDB.getCollection(collection+kind).aggregate(
-					Lists.newArrayList(new Document("$match",new Document("a",new Document("$eq",null))), new Document("$count","a"))
+					Lists.newArrayList(new Document("$match",new Document("a01",new Document("$eq",null))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		else if (kind.contains("_NULLS_ARE_NOTHING")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res = theDB.getCollection(collection+kind).aggregate(
-				Lists.newArrayList(new Document("$match",new Document("a",new Document("$exists",false))), new Document("$count","a"))
+				Lists.newArrayList(new Document("$match",new Document("a01",new Document("$exists",false))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		else if (kind.contains("_NULLS_ARE_ZERO")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res =theDB.getCollection(collection+kind).aggregate(
-					Lists.newArrayList(new Document("$match",new Document("a",new Document("$eq",0))), new Document("$count","a"))
+					Lists.newArrayList(new Document("$match",new Document("a01",new Document("$eq",0))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		writer.writeNext(new String[] { "Mongo", "countNulls", kind.substring(kind.lastIndexOf("_")+1),
@@ -94,25 +107,25 @@ public class E3_MongoDBManager {
 		if (kind.contains("_NULLS_ARE_TEXT")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res = theDB.getCollection(collection+kind).aggregate(
-					Lists.newArrayList(new Document("$match",new Document("a",new Document("$ne",null))), new Document("$count","a"))
+					Lists.newArrayList(new Document("$match",new Document("a01",new Document("$ne",null))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		else if (kind.contains("_NULLS_ARE_NOTHING")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res = theDB.getCollection(collection+kind).aggregate(
-					Lists.newArrayList(new Document("$match",new Document("a",new Document("$not",new Document("$exists",false)))), new Document("$count","a"))
+					Lists.newArrayList(new Document("$match",new Document("a01",new Document("$not",new Document("$exists",false)))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		else if (kind.contains("_NULLS_ARE_ZERO")) {
 			startTime = System.nanoTime();
 			AggregateIterable<Document> res = theDB.getCollection(collection+kind).aggregate(
-					Lists.newArrayList(new Document("$match",new Document("a",new Document("$ne",0))), new Document("$count","a"))
+					Lists.newArrayList(new Document("$match",new Document("a01",new Document("$ne",0))), new Document("$count","a01"))
 			);
-			System.out.println(res.first()==null ? 0 : res.first().getInteger("a"));
+			System.out.println(res.first()==null ? 0 : res.first().getInteger("a01"));
 			elapsedTime = System.nanoTime() - startTime;
 		}
 		writer.writeNext(new String[] { "Mongo", "countNotNulls", kind.substring(kind.lastIndexOf("_")+1),
