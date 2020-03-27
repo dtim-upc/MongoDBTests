@@ -2,6 +2,10 @@ package edu.upc.essi.mongo.ideas_experiments;
 
 import com.google.common.collect.Lists;
 import com.opencsv.CSVWriter;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import edu.upc.essi.mongo.datagen.DocumentSet;
 import edu.upc.essi.mongo.datagen.E3_DocumentSet;
 import edu.upc.essi.mongo.datagen.Generator;
@@ -10,6 +14,7 @@ import edu.upc.essi.mongo.manager.E2_PostgreSQLManager;
 import edu.upc.essi.mongo.manager.E3_MongoDBManager;
 import edu.upc.essi.mongo.manager.E3_PostgreSQLManager;
 import org.bson.Document;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -54,12 +59,12 @@ public class E3 {
 		 * 0.015625, 0.0078125, 0.00390625, 0.001953125, 9.765625E-4, 4.8828125E-4,
 		 * 2.4414062E-4, 1.2207031E-4, 6.1035156E-5
 		 */
-		for (int i = 1; i < 15; ++i) {
+		for (int i = 0; i < 8; ++i) {
 			JsonObject template = generateTemplate(1d - Math.pow(2, -i));
 			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 			Files.write(templateFile.toPath(), template.toString().getBytes());
 			for (int j = 0; j < 100; ++j) {
-				gen.generateFromPseudoJSONSchema(10, templateFile.getAbsolutePath()).stream()
+				gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(d -> {
 							Document d1 = Document.parse(d.toJson());
 							Document d2 = Document.parse(d.toJson());
@@ -96,16 +101,16 @@ public class E3 {
 				E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
 			}
 
-			for (int j = 0; j < 20; j++) {
-				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
-				Process p31 = p21.start();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-				reader.lines().iterator().forEachRemaining(sj::add);
-				String xresult = sj.toString();
-				int retvalx = p31.waitFor();
-				System.out.println(xresult);
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
+//			for (int j = 0; j < 20; j++) {
+//				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+//				Process p31 = p21.start();
+//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+//				reader.lines().iterator().forEachRemaining(sj::add);
+//				String xresult = sj.toString();
+//				int retvalx = p31.waitFor();
+//				System.out.println(xresult);
+//				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
 				
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_TEXT");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_NOTHING");
@@ -122,6 +127,7 @@ public class E3 {
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_TEXT");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_NOTHING");
 				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_ZERO");
+				
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_TEXT");
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_NOTHING");
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_ZERO");
@@ -133,7 +139,7 @@ public class E3 {
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_TEXT");
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_ZERO");
 
-			}
+//			}
 
 			E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_TEXT");
 			E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_NOTHING");
@@ -174,6 +180,9 @@ public class E3 {
 	}
 
 	public static void main(String[] args) throws Exception {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+		rootLogger.setLevel(Level.ERROR);
 		CSVWriter writer = new CSVWriter(new FileWriter("ideas_e3.csv"));
 		writer.writeNext(
 				new String[] { "DB", "operation", "storage", "probability", "runtime (ns)", "size", "compresed" });

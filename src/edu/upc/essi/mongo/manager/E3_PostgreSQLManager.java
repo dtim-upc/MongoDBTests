@@ -117,18 +117,18 @@ public class E3_PostgreSQLManager {
 	}
 
 	public void sumTuple(String kind, boolean nullIsText) throws Exception {
-		ArrayList<String> attribs = Lists.newArrayList(
-				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
-						.sorted().collect(Collectors.toList()));
-		StringBuilder sb = new StringBuilder("SELECT  SUM(");
-		for (String string : attribs) {
-			if (nullIsText)	sb.append("case when ").append(string).append(" is null then 0 else ").append(string).append(" end +");
-			else sb.append(string).append(" +");
-		}
-
-		// remove the trailing +
-		if (sb.length() > 0)
-			sb.deleteCharAt(sb.length() - 1);
+//		ArrayList<String> attribs = Lists.newArrayList(
+//				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
+//						.sorted().collect(Collectors.toList()));
+		StringBuilder sb = new StringBuilder("SELECT  SUM( a01");
+//		for (String string : attribs) {
+//			if (nullIsText)	sb.append("case when ").append(string).append(" is null then 0 else ").append(string).append(" end +");
+//			else sb.append(string).append(" +");
+//		}
+//
+//		// remove the trailing +
+//		if (sb.length() > 0)
+//			sb.deleteCharAt(sb.length() - 1);
 
 		sb.append(") FROM ").append(table + "_tuple" + kind);
 		System.out.println(sb.toString());
@@ -149,12 +149,12 @@ public class E3_PostgreSQLManager {
 		ArrayList<String> attribs = Lists.newArrayList(
 				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
 						.sorted().collect(Collectors.toList()));
-		StringBuilder sb = new StringBuilder("SELECT  SUM(");
+		StringBuilder sb = new StringBuilder("SELECT  SUM(").append("(\"json\"->>'").append("a01").append("')::int +");
 
-		for (String string : attribs) {
-			sb.append("case when ").append("(\"json\"->>'").append(string).append("') is null then 0 else ")
-					.append("(\"json\"->>'").append(string).append("')::int end +");
-		}
+//		for (String string : attribs) {
+//			sb.append("case when ").append("(\"json\"->>'").append(string).append("') is null then 0 else ")
+//					.append("(\"json\"->>'").append(string).append("')::int end +");
+//		}
 
 		if (sb.length() > 0)
 			sb.deleteCharAt(sb.length() - 1);

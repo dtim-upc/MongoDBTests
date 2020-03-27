@@ -41,8 +41,10 @@ public class E4 {
 			fileForTemplate.deleteOnExit();
 			Files.write(fileForTemplate.toPath(), template.toString().getBytes());
 
-			JsonObject mongoDB_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, true, attributesWithValidation);
-			JsonObject PSQL_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, false, attributesWithValidation);
+			JsonObject mongoDB_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, true,
+					attributesWithValidation);
+			JsonObject PSQL_JSONSchema = JSONSchema.generate_e4_JSONSchema(template, false, false,
+					attributesWithValidation);
 			for (int j = 0; j < 100; ++j) {
 				gen.generateFromPseudoJSONSchema(10000, fileForTemplate.getAbsolutePath()).stream()
 						.map(d -> Document.parse(d.toString())).forEach(DocumentSet.getInstance().documents::add);
@@ -69,20 +71,20 @@ public class E4 {
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).reconnect();
 				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer)
 						.sumJSONWithAttributes("_JSON_withoutVal");
-				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).sumJSONWithAttributes("_JSON_withVal");
+				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer)
+						.sumJSONWithAttributes("_JSON_withVal");
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sumTuple("_TUPLE");
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer)
 						.sumJSON("_JSON_withoutVal");
-				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).sumJSON("_JSON_withVal");
-
-				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer)
-						.size("_JSON_withoutVal");
-				E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withVal");
-				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).size("_TUPLE");
 				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer)
-						.size("_JSON_withoutVal");
-				E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).size("_JSON_withVal");
+						.sumJSON("_JSON_withVal");
+
 			}
+			E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withoutVal");
+			E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).size("_JSON_withVal");
+			E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).size("_TUPLE");
+			E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).size("_JSON_withoutVal");
+			E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).size("_JSON_withVal");
 			E4_MongoDBManager.getInstance("e4_" + i, attributes, mongoDB_JSONSchema, writer).destroyme();
 			E4_PostgreSQLManager.getInstance("e4_" + i, attributes, PSQL_JSONSchema, writer).destroyme();
 		}
