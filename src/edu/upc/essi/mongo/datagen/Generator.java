@@ -21,8 +21,8 @@ public class Generator {
 
 	// private constructor restricted to this class itself
 	private Generator() {
-//		list64m = CSVUtils.fillIds("data/80-2m");
-		list64m = CSVUtils.fillIds("/root/ideas/ids/80-2m");
+		list64m = CSVUtils.fillIds("data/80-2m");
+//		list64m = CSVUtils.fillIds("/root/ideas/ids/80-2m");
 //		list64m = CSVUtils.fillIds("/var/lib/postgresql/80-64m");
 		idIndex = 0;
 		System.out.println("Ids loaded");
@@ -69,6 +69,9 @@ public class Generator {
 				out.add(prop, JsonValue.NULL);
 			} else {
 				switch (property.getString("type")) {
+				case "long":
+					out.add(prop,generateLong(property));
+					break;
 				case "number":
 					out.add(prop, generateNumber(property));
 					break;
@@ -93,6 +96,11 @@ public class Generator {
 				(property.getJsonNumber("maxSize").intValue() - property.getJsonNumber("minSize").intValue()) + 1)
 				+ property.getJsonNumber("minSize").intValue();
 		switch (property.getJsonObject("contents").getString("type")) {
+		case "long":
+			for (int i = 0; i < howMany; ++i) {
+				arr.add(generateLong(property.getJsonObject("contents")));
+			}
+			break;
 		case "number":
 			for (int i = 0; i < howMany; ++i) {
 				arr.add(generateNumber(property.getJsonObject("contents")));
@@ -117,6 +125,17 @@ public class Generator {
 		return arr.build();
 	}
 
+	private Long generateLong(JsonObject property) {
+		if (property.containsKey("minimum") && property.containsKey("maximum"))
+			return generateLong(property.getInt("minimum"), property.getInt("maximum"));
+		else if (property.containsKey("minimum") && !property.containsKey("maximum"))
+			return generateLong(property.getInt("minimum"), 1000);
+		else if (!property.containsKey("minimum") && property.containsKey("maximum"))
+			return generateLong(0, property.getInt("maximum"));
+		else
+			return generateLong(0, 1000);
+	}
+
 	private int generateNumber(JsonObject property) {
 		if (property.containsKey("minimum") && property.containsKey("maximum"))
 			return generateNumber(property.getInt("minimum"), property.getInt("maximum"));
@@ -132,6 +151,10 @@ public class Generator {
 	// https://stackoverflow.com/questions/11743267/get-random-numbers-in-a-specific-range-in-java
 	private int generateNumber(int lowerbound, int upperbound) {
 		return new SplittableRandom().nextInt(upperbound - lowerbound + 1) + lowerbound;
+	}
+
+	private Long generateLong(int lowerbound, int upperbound) {
+		return new SplittableRandom().nextLong((long)upperbound - (long)lowerbound + Long.valueOf(1)) + (long)lowerbound;
 	}
 
 	private String generateString(JsonObject property) {

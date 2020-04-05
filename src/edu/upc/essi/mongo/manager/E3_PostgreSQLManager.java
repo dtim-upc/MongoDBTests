@@ -27,7 +27,8 @@ public class E3_PostgreSQLManager {
 	
 	public void reconnect() {
 		try {
-			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			//JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 			JDBC.setAutoCommit(false);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -42,20 +43,20 @@ public class E3_PostgreSQLManager {
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
 
-//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-//		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-//		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
+		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 
 //		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
 //				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
 //				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
 //		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
 
-		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
-				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-	JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//	JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 
 		JDBC.setAutoCommit(false);
 
@@ -65,12 +66,12 @@ public class E3_PostgreSQLManager {
 
 		JDBC.createStatement()
 				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_TEXT (ID CHAR(24), "
-						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " int")
+						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " double precision")
 								.sorted().collect(Collectors.joining(","))
 						+", b VARCHAR(64))");
 		JDBC.createStatement()
 				.execute("CREATE TABLE " + table + "_TUPLE_NULLS_ARE_ZERO (ID CHAR(24), "
-						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " int")
+						+ IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)) + " double precision")
 						.sorted().collect(Collectors.joining(","))
 						+", b VARCHAR(64))");
 
@@ -162,7 +163,7 @@ public class E3_PostgreSQLManager {
 		ArrayList<String> attribs = Lists.newArrayList(
 				IntStream.range(1,65).boxed().map(i->"a"+(i < 10 ? '0' + String.valueOf(i) : String.valueOf(i)))
 						.sorted().collect(Collectors.toList()));
-		StringBuilder sb = new StringBuilder("SELECT  SUM(").append("(\"json\"->>'").append("a01").append("')::int +");
+		StringBuilder sb = new StringBuilder("SELECT  SUM(").append("(\"json\"->>'").append("a01").append("')::numeric +");
 
 //		for (String string : attribs) {
 //			sb.append("case when ").append("(\"json\"->>'").append(string).append("') is null then 0 else ")

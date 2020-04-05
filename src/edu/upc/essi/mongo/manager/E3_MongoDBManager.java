@@ -44,8 +44,25 @@ public class E3_MongoDBManager {
 	}
 
 	public void insert(String kind) {
+		List<Document> newDocs = Lists.newArrayList();
+		E3_DocumentSet.getInstance().getByName(kind).forEach(oldD -> {
+			Document newDoc = new Document();
+			oldD.forEach((k,v) -> {
+				if (!k.equals("_id") && !k.equals("b")) {
+					try {
+						newDoc.put(k,v == null ? null : Long.valueOf(v.toString()));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					newDoc.put(k,v);
+				}
+			});
+			newDocs.add(newDoc);
+		});
+
 		long startTime = System.nanoTime();
-		theDB.getCollection(collection + kind).insertMany(E3_DocumentSet.getInstance().getByName(kind));
+		theDB.getCollection(collection + kind).insertMany(newDocs);
 		long elapsedTime = System.nanoTime() - startTime;
 
 		writer.writeNext(new String[] { "Mongo", "insert", kind.substring(kind.lastIndexOf("_") + 1),
@@ -76,8 +93,13 @@ public class E3_MongoDBManager {
 //		groupStage.put("sum", new Document("$sum", "$a01"));
 		System.out.println(groupStage);
 		long startTime = System.nanoTime();
-		int res = theDB.getCollection(collection + kind).aggregate(groupStage).first().getInteger("sum");
-		System.out.println(res);
+		try {
+			long res = theDB.getCollection(collection + kind).aggregate(groupStage).first().getLong("sum");
+			System.out.println(res);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 
 //		System.out.println(res);
 		long elapsedTime = System.nanoTime() - startTime;

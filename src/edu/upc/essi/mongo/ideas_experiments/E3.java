@@ -68,8 +68,18 @@ public class E3 {
 				File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 				Files.write(templateFile.toPath(), template.toString().getBytes());
 				for (int j = 0; j < 100; ++j) {
-					gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
+					gen.generateFromPseudoJSONSchema(1000, templateFile.getAbsolutePath()).stream()
 							.map(d -> Document.parse(d.toString())).forEach(d -> {
+								//Document.parse finds ints, must convert to long
+								/*Document goodD = new Document();
+								d.forEach((k,v) -> {
+									if (!k.equals("_id") && !k.equals("b")) {
+										goodD.put(k,Long.valueOf(v.toString()));
+									} else {
+										goodD.put(k,v);
+									}
+								});*/
+
 								Document d1 = Document.parse(d.toJson());
 								Document d2 = Document.parse(d.toJson());
 								Document d3 = Document.parse(d.toJson());
@@ -84,7 +94,7 @@ public class E3 {
 										if (d.get(k) == null) {
 											d2.remove(k);
 											d3.remove(k);
-											d3.put(k, 0);
+											d3.put(k, 1);
 										}
 									}
 								});
@@ -197,7 +207,7 @@ public class E3 {
 		JsonObjectBuilder properties = Json.createObjectBuilder();
 		for (int i = 1; i <= 64; ++i) {
 			JsonObjectBuilder A = Json.createObjectBuilder();
-			A.add("type", "number");
+			A.add("type", "long");
 			A.add("nullProbability", probability);
 			A.add("minimum", -10);
 			A.add("maximum", 10);
