@@ -60,102 +60,134 @@ public class E3 {
 		 * 2.4414062E-4, 1.2207031E-4, 6.1035156E-5
 		 */
 		for (int i = 0; i < 8; ++i) {
-			JsonObject template = generateTemplate(1d - Math.pow(2, -i));
-			File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
-			Files.write(templateFile.toPath(), template.toString().getBytes());
-			for (int j = 0; j < 100; ++j) {
-				gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
-						.map(d -> Document.parse(d.toString())).forEach(d -> {
-							Document d1 = Document.parse(d.toJson());
-							Document d2 = Document.parse(d.toJson());
-							Document d3 = Document.parse(d.toJson());
+//			System.out.println(i);
+			for (int l = 0; l < 2; l++) {
+//			int l=0;
+				JsonObject template;
+				template = l == 0 ? generateTemplate(1d - Math.pow(2, -i)) : generateTemplate(Math.pow(2, -i));
+				File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
+				Files.write(templateFile.toPath(), template.toString().getBytes());
+				for (int j = 0; j < 100; ++j) {
+					gen.generateFromPseudoJSONSchema(10000, templateFile.getAbsolutePath()).stream()
+							.map(d -> Document.parse(d.toString())).forEach(d -> {
+								Document d1 = Document.parse(d.toJson());
+								Document d2 = Document.parse(d.toJson());
+								Document d3 = Document.parse(d.toJson());
 
-							d.keySet().forEach(k -> {
-								if (!k.equals("_id") && !k.equals("b")) {
-									// get rid of 0s for D1
-									if (d.get(k) != null && d.getInteger(k) == 0) {
-										d1.remove(k);
-										d1.put(k, 1);
+								d.keySet().forEach(k -> {
+									if (!k.equals("_id") && !k.equals("b")) {
+										// get rid of 0s for D1
+										if (d.get(k) != null && d.getInteger(k) == 0) {
+											d1.remove(k);
+											d1.put(k, 1);
+										}
+										if (d.get(k) == null) {
+											d2.remove(k);
+											d3.remove(k);
+											d3.put(k, 0);
+										}
 									}
-									if (d.get(k) == null) {
-										d2.remove(k);
-										d3.remove(k); d3.put(k,0);
-									}
-								}
+								});
+								E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d1);
+								E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
+								E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.add(d3);
 							});
-							E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.add(d1);
-							E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.add(d2);
-							E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.add(d3);
-						});
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_TEXT");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_NOTHING");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_NOTHING");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(false, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(false, "_NULLS_ARE_ZERO");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_TEXT");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_NOTHING");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).insert("_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_NOTHING");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(true, "_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(false, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).insert(false, "_NULLS_ARE_ZERO");
 
-				E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.clear();
-				E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.clear();
-				E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_TEXT.clear();
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_NOTHING.clear();
+					E3_DocumentSet.getInstance().documents_NULLS_ARE_ZERO.clear();
+				}
+
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).analyze();
+				for (int j = 0; j < 20; j++) {
+					ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+					Process p31 = p21.start();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+					StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+					reader.lines().iterator().forEachRemaining(sj::add);
+					String xresult = sj.toString();
+					int retvalx = p31.waitFor();
+					System.out.println(xresult);
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
+
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_TEXT");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_NOTHING");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON("_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON("_NULLS_ARE_NOTHING");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON("_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple("_NULLS_ARE_TEXT", true);
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple("_NULLS_ARE_ZERO", false);
+				}
+
+				for (int j = 0; j < 20; j++) {
+					ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+					Process p31 = p21.start();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+					StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+					reader.lines().iterator().forEachRemaining(sj::add);
+					String xresult = sj.toString();
+					int retvalx = p31.waitFor();
+					System.out.println(xresult);
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
+
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_TEXT");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_NOTHING");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_NOTHING");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_ZERO");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(false, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(false, "_NULLS_ARE_ZERO");
+				}
+
+				for (int j = 0; j < 20; j++) {
+					ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
+					Process p31 = p21.start();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
+					StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+					reader.lines().iterator().forEachRemaining(sj::add);
+					String xresult = sj.toString();
+					int retvalx = p31.waitFor();
+					System.out.println(xresult);
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_NOTHING");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_ZERO");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_TEXT");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_NOTHING");
+					E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_ZERO");
+
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_TEXT");
+					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_ZERO");
+
+				}
+
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_TEXT");
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_NOTHING");
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_ZERO");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_TEXT");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_NOTHING");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_ZERO");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(false, "_NULLS_ARE_TEXT");
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(false, "_NULLS_ARE_ZERO");
+
+				E3_MongoDBManager.getInstance("e3_" + i, i, writer).destroyme();
+				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).destroyme();
+
+				gen.resetIndex();
+
 			}
-
-//			for (int j = 0; j < 20; j++) {
-//				ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
-//				Process p31 = p21.start();
-//				BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
-//				StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-//				reader.lines().iterator().forEachRemaining(sj::add);
-//				String xresult = sj.toString();
-//				int retvalx = p31.waitFor();
-//				System.out.println(xresult);
-//				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).reconnect();
-				
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_TEXT");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_NOTHING");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).sumJSONWithAttributes("_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_NOTHING");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumJSON( "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple( "_NULLS_ARE_TEXT", true);
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple( "_NULLS_ARE_ZERO", false);
-
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_TEXT");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_NOTHING");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNulls("_NULLS_ARE_ZERO");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_TEXT");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_NOTHING");
-				E3_MongoDBManager.getInstance("e3_" + i, i, writer).countNotNulls("_NULLS_ARE_ZERO");
-				
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_NOTHING");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(true, "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_NOTHING");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(true, "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(false, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNulls(false, "_NULLS_ARE_ZERO");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_TEXT");
-				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).countNotNulls(false, "_NULLS_ARE_ZERO");
-
-//			}
-
-			E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_TEXT");
-			E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_NOTHING");
-			E3_MongoDBManager.getInstance("e3_" + i, i, writer).size("_NULLS_ARE_ZERO");
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_TEXT");
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_NOTHING");
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(true, "_NULLS_ARE_ZERO");
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(false, "_NULLS_ARE_TEXT");
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).size(false, "_NULLS_ARE_ZERO");
-
-			E3_MongoDBManager.getInstance("e3_" + i, i, writer).destroyme();
-			E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).destroyme();
-
-			gen.resetIndex();
-
 		}
+
 	}
 
 	private static JsonObject generateTemplate(double probability) {
@@ -163,7 +195,7 @@ public class E3 {
 		out.add("_id", JsonValue.TRUE);
 		out.add("type", "object");
 		JsonObjectBuilder properties = Json.createObjectBuilder();
-		for (int i=1; i <= 64; ++i) {
+		for (int i = 1; i <= 64; ++i) {
 			JsonObjectBuilder A = Json.createObjectBuilder();
 			A.add("type", "number");
 			A.add("nullProbability", probability);

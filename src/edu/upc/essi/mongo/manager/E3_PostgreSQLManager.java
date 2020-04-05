@@ -76,6 +76,19 @@ public class E3_PostgreSQLManager {
 
 		JDBC.commit();
 	}
+	
+	public void analyze() throws SQLException {
+		JDBC.createStatement().execute("ANALYZE " + table + "_JSON_NULLS_ARE_TEXT");
+		JDBC.createStatement().execute("ANALYZE " + table + "_JSON_NULLS_ARE_NOTHING");
+		JDBC.createStatement().execute("ANALYZE " + table + "_JSON_NULLS_ARE_ZERO");
+
+		JDBC.createStatement()
+				.execute("ANALYZE " + table + "_TUPLE_NULLS_ARE_TEXT ");
+		JDBC.createStatement()
+				.execute("ANALYZE " + table + "_TUPLE_NULLS_ARE_ZERO ");
+
+		JDBC.commit();
+	}
 
 	public void insert(boolean isJSON, String kind) throws SQLException {
 		Statement statement = JDBC.createStatement();
