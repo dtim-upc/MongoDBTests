@@ -61,40 +61,32 @@ public class E3 {
 		 */
 		for (int i = 0; i < 8; ++i) {
 //			System.out.println(i);
-			for (int l = 0; l < 2; l++) {
+			for (int l = 0; l < 10; l++) {
 //			int l=0;
 				JsonObject template;
 				template = l == 0 ? generateTemplate(1d - Math.pow(2, -i)) : generateTemplate(Math.pow(2, -i));
 				File templateFile = File.createTempFile("template-", ".tmp");// templateFile.deleteOnExit();
 				Files.write(templateFile.toPath(), template.toString().getBytes());
-				for (int j = 0; j < 100; ++j) {
+				for (int j = 0; j < 2; ++j) {
 					gen.generateFromPseudoJSONSchema(1000, templateFile.getAbsolutePath()).stream()
-							.map(d -> Document.parse(d.toString())).forEach(d -> {
-								//Document.parse finds ints, must convert to long
-								/*Document goodD = new Document();
-								d.forEach((k,v) -> {
-									if (!k.equals("_id") && !k.equals("b")) {
-										goodD.put(k,Long.valueOf(v.toString()));
-									} else {
-										goodD.put(k,v);
-									}
-								});*/
-
-								Document d1 = Document.parse(d.toJson());
-								Document d2 = Document.parse(d.toJson());
-								Document d3 = Document.parse(d.toJson());
+							/*.map(d -> Document.parse(d.toString()))*/.forEach(d -> {
+								Document d1 = new Document(d);// Document.parse(d.toJson());
+								Document d2 = new Document(d);//Document.parse(d.toJson());
+								Document d3 = new Document(d);//Document.parse(d.toJson());
 
 								d.keySet().forEach(k -> {
 									if (!k.equals("_id") && !k.equals("b")) {
 										// get rid of 0s for D1
-										if (d.get(k) != null && d.getInteger(k) == 0) {
+										if (d.get(k) != null && !d.get(k).equals(JsonValue.NULL) && d.getDouble(k) == 0d) {
 											d1.remove(k);
-											d1.put(k, 1);
+											d1.put(k, 1d);
 										}
-										if (d.get(k) == null) {
+										if (d.get(k) == null || d.get(k).equals(JsonValue.NULL)) {
+											d1.remove(k);
+											d1.put(k,null);
 											d2.remove(k);
 											d3.remove(k);
-											d3.put(k, 1);
+											d3.put(k, 0d);
 										}
 									}
 								});
@@ -117,7 +109,7 @@ public class E3 {
 				}
 
 				E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).analyze();
-				for (int j = 0; j < 20; j++) {
+				for (int j = 0; j < 2; j++) {
 					ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 					Process p31 = p21.start();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));
@@ -138,7 +130,7 @@ public class E3 {
 					E3_PostgreSQLManager.getInstance("e3_" + i, i, writer).sumTuple("_NULLS_ARE_ZERO", false);
 				}
 
-				for (int j = 0; j < 20; j++) {
+				for (int j = 0; j < 2; j++) {
 					ProcessBuilder p21 = new ProcessBuilder("/root/ideas/clear.sh");
 					Process p31 = p21.start();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(p31.getInputStream()));

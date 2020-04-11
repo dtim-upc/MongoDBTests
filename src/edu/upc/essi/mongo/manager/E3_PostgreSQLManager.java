@@ -27,8 +27,8 @@ public class E3_PostgreSQLManager {
 	
 	public void reconnect() {
 		try {
-			//JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
-			JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+			JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+			//JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 			JDBC.setAutoCommit(false);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -43,20 +43,15 @@ public class E3_PostgreSQLManager {
 		Class.forName("org.postgresql.Driver");
 		// Drop and create DB
 
-		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
-		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
+//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "postgres").createStatement().execute(""
+//		+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+//		+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "postgres");
 
-//		DriverManager.getConnection("jdbc:postgresql://localhost/", "postgres", "TYPsm3").createStatement().execute(""
-//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//		JDBC = DriverManager.getConnection("jdbc:postgresql://localhost/ideas_experiments", "postgres", "TYPsm3");
-
-//		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
-//				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
-//				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
-//	JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
+		DriverManager.getConnection("jdbc:postgresql://10.55.0.32/", "postgres", "user").createStatement().execute(""
+				+ "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'ideas_experiments' AND pid <> pg_backend_pid(); "
+				+ "drop database if exists ideas_experiments; " + "create database ideas_experiments;");
+		JDBC = DriverManager.getConnection("jdbc:postgresql://10.55.0.32/ideas_experiments", "postgres", "user");
 
 		JDBC.setAutoCommit(false);
 
@@ -95,7 +90,7 @@ public class E3_PostgreSQLManager {
 		Statement statement = JDBC.createStatement();
 		if (isJSON) {
 			E3_DocumentSet.getInstance().getByName(kind).stream().map(d -> {
-				Document copy = Document.parse(d.toJson());
+				Document copy = new Document(d);//Document.parse(d.toJson());
 				String k = copy.remove("_id").toString();
 				return "INSERT INTO " + table + "_JSON" + kind + "(ID,JSON) VALUES ('" + k + "','" + copy.toJson()
 						+ "')";
@@ -195,7 +190,7 @@ public class E3_PostgreSQLManager {
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING"))
 				expr = "json->>'a01' is null";
 			else
-				expr = "(json->>'a01')::int = 0";
+				expr = "(json->>'a01')::numeric = 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where " + expr;
 		} else {
 			if (kind.equals("_NULLS_ARE_TEXT"))
@@ -222,7 +217,7 @@ public class E3_PostgreSQLManager {
 			if (kind.equals("_NULLS_ARE_TEXT") || kind.equals("_NULLS_ARE_NOTHING"))
 				expr = "json->>'a01' is not null";
 			else
-				expr = "(json->>'a01')::int <> 0";
+				expr = "(json->>'a01')::numeric <> 0";
 			sql = "select count(*) from " + table + "_JSON" + kind + " where " + expr;
 		} else {
 			if (kind.equals("_NULLS_ARE_TEXT"))

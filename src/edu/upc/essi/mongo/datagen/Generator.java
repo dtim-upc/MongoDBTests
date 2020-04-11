@@ -5,11 +5,14 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.SplittableRandom;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import edu.upc.essi.mongo.exp.CSVUtils;
+import org.bson.Document;
 
 import javax.json.*;
 
@@ -45,53 +48,54 @@ public class Generator {
 		return generator_instance;
 	}
 
-	public JsonArray generateFromPseudoJSONSchema(int documentCount, String schemaPath)
+	public List<Document> generateFromPseudoJSONSchema(int documentCount, String schemaPath)
 			throws RuntimeException, Exception {
 		JsonObject schema = Json.createReader(new StringReader(IOUtils.toString(Paths.get(schemaPath).toUri())))
 				.readObject();
 		if (!schema.getString("type").equals("object"))
 			throw new RuntimeException("The type of the root must be object");
-		JsonArrayBuilder out = Json.createArrayBuilder();
+		List<Document> out = Lists.newArrayList();//Json.createArrayBuilder();
 		for (int i = 0; i < documentCount; ++i) {
 			out.add(generateJSONObject(schema));
 		}
-		return out.build();
+		return out;//.build().stream().map(d -> toLongDocument(Document.parse(d.toString()))).collect(Collectors.toList());
+		//return out.build();
 	}
 
-	private JsonObject generateJSONObject(JsonObject schema) throws RuntimeException {
-		JsonObjectBuilder out = Json.createObjectBuilder();
+	private Document generateJSONObject(JsonObject schema) throws RuntimeException {
+		Document out = new Document();//Json.createObjectBuilder();
 		if (schema.containsKey("_id") && schema.getBoolean("_id"))
-			out.add("_id", getNextID().toString());
+			out.append("_id", getNextID().toString());
 		schema.getJsonObject("properties").keySet().forEach(prop -> {
 			JsonObject property = schema.getJsonObject("properties").getJsonObject(prop);
 			if (property.containsKey("nullProbability")
 					&& Math.random() < property.getJsonNumber("nullProbability").doubleValue()) {
-				out.add(prop, JsonValue.NULL);
+				out.append(prop, JsonValue.NULL);
 			} else {
 				switch (property.getString("type")) {
 				case "long":
-					out.add(prop,generateLong(property));
+					out.append(prop,generateLong(property));
 					break;
 				case "number":
-					out.add(prop, generateNumber(property));
+					out.append(prop, generateNumber(property));
 					break;
 				case "string":
-					out.add(prop, generateString(property));
+					out.append(prop, generateString(property));
 					break;
 				case "object":
-					out.add(prop, generateJSONObject(property));
+					out.append(prop, generateJSONObject(property));
 					break;
 				case "array":
-					out.add(prop, generateJsonArray(property));
+					out.append(prop, generateJsonArray(property));
 				}
 			}
 		});
-		return out.build();
+		return out;//.build();
 	}
 
 	// from https://mkyong.com/java/java-generate-random-integers-in-a-range/
-	private JsonArray generateJsonArray(JsonObject property) {
-		JsonArrayBuilder arr = Json.createArrayBuilder();
+	private List<Object> generateJsonArray(JsonObject property) {
+		List<Object> arr = Lists.newArrayList();//Json.createArrayBuilder();
 		int howMany = new SplittableRandom().nextInt(
 				(property.getJsonNumber("maxSize").intValue() - property.getJsonNumber("minSize").intValue()) + 1)
 				+ property.getJsonNumber("minSize").intValue();
@@ -122,10 +126,10 @@ public class Generator {
 			}
 			;
 		}
-		return arr.build();
+		return arr;//.build();
 	}
 
-	private Long generateLong(JsonObject property) {
+	private Double generateLong(JsonObject property) {
 		if (property.containsKey("minimum") && property.containsKey("maximum"))
 			return generateLong(property.getInt("minimum"), property.getInt("maximum"));
 		else if (property.containsKey("minimum") && !property.containsKey("maximum"))
@@ -153,8 +157,8 @@ public class Generator {
 		return new SplittableRandom().nextInt(upperbound - lowerbound + 1) + lowerbound;
 	}
 
-	private Long generateLong(int lowerbound, int upperbound) {
-		return new SplittableRandom().nextLong((long)upperbound - (long)lowerbound + Long.valueOf(1)) + (long)lowerbound;
+	private Double generateLong(int lowerbound, int upperbound) {
+		return new SplittableRandom().nextDouble((double)upperbound - (double)lowerbound + Double.valueOf(1)) + (double)lowerbound;
 	}
 
 	private String generateString(JsonObject property) {
