@@ -16,6 +16,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
     - E4 - Datatype validation
     - E5 - Metadata representation
     - E6 - Integrity constraints
+  - "IDEAS 2020 - experimental results" contails the experimental results and the respective figures
 
 # Statistical data for MongoDB inserts
  - Change the constants (Const.java) according to your setup (MongoDB path, logpath, config path, and directories for the database)
