@@ -7,8 +7,18 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - MongoDB
   - PostgreSQL 
   - Working only under linux systems (not windows)
+  
+# IDEAS 2020 experiments
+  - src/edu/upc/essi/mongo/ideas_experiments/ contains the experiments for the following use cases
+    - E1 - Multivalued attributes
+    - E2 - Nested structures
+    - E3 - Null values
+    - E4 - Datatype validation
+    - E5 - Metadata representation
+    - E6 - Integrity constraints
+  - "IDEAS 2020 - experimental results" contails the experimental results and the respective figures
 
-# How to run
+# Statistical data for MongoDB inserts
  - Change the constants (Const.java) according to your setup (MongoDB path, logpath, config path, and directories for the database)
  - Run CreateData.java 
       * This will create different databases in different directories and save the ids of the documents in files for the experiments
