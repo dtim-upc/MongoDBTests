@@ -13,8 +13,9 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
     - E1 - Multivalued attributes
     
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-insert" title="Insert"/></p>
-    
-    
+
+![GitHub Logo](ADBIS 2020 - experimental results/pngs/e1-insert.png)
+
     - E2 - Nested structures
     - E3 - Null values
     - E4 - Datatype validation
