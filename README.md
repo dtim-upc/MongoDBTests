@@ -11,7 +11,6 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 # ADBIS 2020 experiments
   - [adbis_experiments](./src/edu/upc/essi/mongo/adbis_experiments/)  contains the experiments for the following use cases
     - E1 - Multivalued attributes
-	
 	  - Insert
 	  
 	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e1-insert.png)
@@ -22,37 +21,53 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 	  
 	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e1-sum.png)
     - E2 - Nested structures
-     <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e2-insert.png" alt="E2-insert" title="Insert"/></p>
- <p align="center">Size</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e2-size.png" alt="E2-size" title="Size"/></p>
- <p align="center">Sum</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e2-sum.png" alt="E2-query" title="Sum"/></p>
-    - E3 - Null values     <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e3-insert.png" alt="E3-insert" title="Insert"/></p>
- <p align="center">Size</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e3-size.png" alt="E3-size" title="Size"/></p>
- <p align="center">Sum</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e3-sum.png" alt="E3-query" title="Sum"/></p>
-<p align="center">Count</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e3-countnull.png" alt="E3-query" title="Count"/></p>
-- E4 - Datatype validation
+      - Insert
+	  
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e2-insert.png)
+	  - Size
+	  
+	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e2-size.png)
+	  - Sum
+	  
+	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e2-sum.png)
+    - E3 - Null values     
+	  - Insert
+	  
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e3-insert.png)
+	  - Size
+	  
+	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e3-size.png)
+	  - Sum
+	  
+	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e3-sum.png)
+	  - Count nulls
+	  
+	  ![count](ADBIS%202020%20-%20experimental%20results/pngs/e3-countnull.png)
+    - E4 - Datatype validation
     - E6 - Integrity constraints
-    <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e4-insert-all.png" alt="E4-insert" title="Insert "/></p>
-    - E5 - Metadata representation
-    <p align="center">Insert: changing number of attributes</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e5-insert.png" alt="E5-insert" title="Insert:changing number of attributes"/></p>
- <p align="center">Size: changing number of attributes</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e5-size.png" alt="E5-size" title="Size: changing number of attributes"/></p>
- <p align="center">Sum: changing number of attributes</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e5-sum.png" alt="E1-query" title="Sum: changing number of attributes"/></p>
-    <p align="Insert: changing data-metadata ratio">Insert</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e51-insert.png" alt="E1-insert" title="Insert: changing data-metadata ratio"/></p>
- <p align="center">Size: changing data-metadata ratio</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e51-size.png" alt="E51-size" title="Size: changing data-metadata ratio"/></p>
- <p align="center">Sum: changing data-metadata ratio</p>
-<p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e51-sum.png" alt="E51-query" title="Sum: changing data-metadata ratio"/></p>
+	  - Insert
+	  
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e4-insert-all.png)
+    - E5 - Metadata representation     
+	  - Insert: changing number of attributes
+	  
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e5-insert.png)
+	  - Size: changing number of attributes
+	  
+	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e5-size.png)
+	  - Sum: changing number of attributes
+	  
+	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e5-sum.png)
+	  
+	  - Insert: changing data-metadata ratio
+	  
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e51-insert.png)
+	  - Size: changing data-metadata ratio
+	  
+	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e51-size.png)
+	  - Sum: changing data-metadata ratio
+	  
+	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e51-sum.png)
   -   [ADBIS 2020 - experimental results](./ADBIS 2020 - experimental results) contails the experimental results and the respective figures
 
 # Statistical data for MongoDB inserts
