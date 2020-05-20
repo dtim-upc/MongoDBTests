@@ -11,7 +11,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 # IDEAS 2020 experiments
   - src/edu/upc/essi/mongo/ideas_experiments/ contains the experiments for the following use cases
     - E1 - Multivalued attributes
-    ![EC2](/IDEAS 2020 - experimental results/e1,e2/e1-insert.eps)
+    ![EC2](IDEAS 2020 - experimental results/e1,e2/e1-insert.eps)
     - E2 - Nested structures
     - E3 - Null values
     - E4 - Datatype validation
