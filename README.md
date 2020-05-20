@@ -12,9 +12,12 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - [adbis_experiments](./src/edu/upc/essi/mongo/adbis_experiments/)  contains the experiments for the following use cases
     - E1 - Multivalued attributes
 	
-	  - Insert![insert](ADBIS%202020%20-%20experimental%20results/pngs/e1-insert.png)
-	  - Size![size](ADBIS%202020%20-%20experimental%20results/pngs/e1-size.png)
-	  - Sum![sum](ADBIS%202020%20-%20experimental%20results/pngs/e1-sum.png)
+	  - Insert
+	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e1-insert.png)
+	  - Size
+	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e1-size.png)
+	  - Sum
+	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e1-sum.png)
     - E2 - Nested structures
      <p align="center">Insert</p>
 <p align="center"><img src="./ADBIS%202020%20-%20experimental%20results/pngs/e2-insert.png" alt="E2-insert" title="Insert"/></p>
