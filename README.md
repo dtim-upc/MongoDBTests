@@ -38,17 +38,17 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e4-insert-all.png" alt="E1-insert" title="Insert "/></p>
     - E5 - Metadata representation
     <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-insert.png" alt="E1-insert" title="Insert- changing number of attributes"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-insert.png" alt="E1-insert" title="Insert:changing number of attributes"/></p>
  <p align="center">Size</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-size.png" alt="E1-size" title="Size - changing number of attributes"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-size.png" alt="E1-size" title="Size: changing number of attributes"/></p>
  <p align="center">Sum</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-sum.png" alt="E1-query" title="Sum - changing number of attributes"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-sum.png" alt="E1-query" title="Sum: changing number of attributes"/></p>
     <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-insert.png" alt="E1-insert" title="Insert- changing data-metadata ratio"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-insert.png" alt="E1-insert" title="Insert: changing data-metadata ratio"/></p>
  <p align="center">Size</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-size.png" alt="E1-size" title="Size - changing data-metadata ratio"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-size.png" alt="E1-size" title="Size: changing data-metadata ratio"/></p>
  <p align="center">Sum</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-sum.png" alt="E1-query" title="Sum - changing data-metadata ratio"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e5-sum.png" alt="E1-query" title="Sum: changing data-metadata ratio"/></p>
   - "IDEAS 2020 - experimental results" contails the experimental results and the respective figures
 
 # Statistical data for MongoDB inserts
