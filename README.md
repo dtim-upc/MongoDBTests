@@ -8,6 +8,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - PostgreSQL 
   - Working only under linux systems (not windows)
   ![Screenshot](ADBIS%202020%20-%20experimental%20results/pngs/e1-insert.png)
+  *image_caption*
 # IDEAS 2020 experiments
   - [adbis_experiments](./src/edu/upc/essi/mongo/adbis_experiments/)  contains the experiments for the following use cases
     - E1 - Multivalued attributes
