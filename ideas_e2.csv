@@ -1,2 +1,0 @@
-"DB","operation","table","levels","attributes","runtime (ns)","size","compresed"
-"Mongo","insert","e2_JSON_withSiblings_64levels","64","64","105154200"
