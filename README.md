@@ -13,10 +13,13 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
     - E1 - Multivalued attributes
 	
 	  - Insert
+	  
 	  ![insert](ADBIS%202020%20-%20experimental%20results/pngs/e1-insert.png)
 	  - Size
+	  
 	  ![size](ADBIS%202020%20-%20experimental%20results/pngs/e1-size.png)
 	  - Sum
+	  
 	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e1-sum.png)
     - E2 - Nested structures
      <p align="center">Insert</p>
