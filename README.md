@@ -68,7 +68,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 	  - Sum: changing data-metadata ratio
 	  
 	  ![sum](ADBIS%202020%20-%20experimental%20results/pngs/e51-sum.png)
-  -   [ADBIS 2020 - experimental results](./ADBIS 2020 - experimental results) contails the experimental results and the respective figures
+  -   [ADBIS 2020 - experimental results](./ADBIS%202020%20-%20experimental%20results) contails the experimental results and the respective figures
 
 # Statistical data for MongoDB inserts
  - Change the constants (Const.java) according to your setup (MongoDB path, logpath, config path, and directories for the database)
