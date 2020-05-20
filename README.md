@@ -25,7 +25,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
  <p align="center">Sum</p>
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e2-sum.png" alt="E2-query" title="Sum"/></p>
     - E3 - Null values     <p align="center">Insert</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e2-insert.png" alt="E3-insert" title="Insert"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e3-insert.png" alt="E3-insert" title="Insert"/></p>
  <p align="center">Size</p>
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e3-size.png" alt="E3-size" title="Size"/></p>
  <p align="center">Sum</p>
