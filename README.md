@@ -49,7 +49,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e51-size.png" alt="E51-size" title="Size: changing data-metadata ratio"/></p>
  <p align="center">Sum: changing data-metadata ratio</p>
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e51-sum.png" alt="E51-query" title="Sum: changing data-metadata ratio"/></p>
-  - "IDEAS 2020 - experimental results" contails the experimental results and the respective figures
+  - [ADBIS 2020 - experimental results](./ADBIS 2020 - experimental results) contails the experimental results and the respective figures
 
 # Statistical data for MongoDB inserts
  - Change the constants (Const.java) according to your setup (MongoDB path, logpath, config path, and directories for the database)
