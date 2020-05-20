@@ -9,16 +9,21 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - Working only under linux systems (not windows)
   
 # IDEAS 2020 experiments
-  - [adbis_experiments!](./src/edu/upc/essi/mongo/adbis_experiments/)  contains the experiments for the following use cases
+  - [adbis_experiments](./src/edu/upc/essi/mongo/adbis_experiments/)  contains the experiments for the following use cases
     - E1 - Multivalued attributes
  <p align="center">Insert</p>
 <p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-insert" title="Insert"/></p>
  <p align="center">Size</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-size" title="Size"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-size.png" alt="E1-size" title="Size"/></p>
  <p align="center">Query</p>
-<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-query" title="Query"/></p>
-
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-sum.png" alt="E1-query" title="Query"/></p>
     - E2 - Nested structures
+     <p align="center">Insert</p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E2-insert" title="Insert"/></p>
+ <p align="center">Size</p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-size.png" alt="E2-size" title="Size"/></p>
+ <p align="center">Query</p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-sum.png" alt="E2-query" title="Query"/></p>
     - E3 - Null values
     - E4 - Datatype validation
     - E5 - Metadata representation
