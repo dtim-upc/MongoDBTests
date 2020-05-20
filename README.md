@@ -12,7 +12,11 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - src/edu/upc/essi/mongo/ideas_experiments/ contains the experiments for the following use cases
     - E1 - Multivalued attributes
  <p align="center">Insert</p>
-<p align="center">Insert<img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-insert" title="Insert"/></p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-insert" title="Insert"/></p>
+ <p align="center">Size</p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-size" title="Size"/></p>
+ <p align="center">Query</p>
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.png" alt="E1-query" title="Query"/></p>
 
     - E2 - Nested structures
     - E3 - Null values
