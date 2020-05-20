@@ -12,7 +12,7 @@ A set of test cases to evaluate cache performance of MongoDB with different docu
   - src/edu/upc/essi/mongo/ideas_experiments/ contains the experiments for the following use cases
     - E1 - Multivalued attributes
     
-    ![EC2](IDEAS 2020 - experimental results/e1,e2/e1-insert.eps)
+<p align="center"><img src="./ADBIS 2020 - experimental results/pngs/e1-insert.eps" alt="E1-insert" title="Insert"/></p>
     
     
     - E2 - Nested structures
